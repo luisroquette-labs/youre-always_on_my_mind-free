@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://luisroquette.github.io/youre-always_on_my_mind-free/sitemap.xml
