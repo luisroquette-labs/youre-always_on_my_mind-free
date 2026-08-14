@@ -18,6 +18,7 @@
   <meta name="twitter:title" content="You're Always on My Mind">
   <meta name="twitter:description" content="A free, local-first visual memory cockpit for your AI tools.">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/luisroquette/youre-always_on_my_mind-free/main/assets/readme/hero.svg">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23071126'/%3E%3Ccircle cx='18' cy='24' r='7' fill='%234dc8ff'/%3E%3Ccircle cx='34' cy='39' r='7' fill='%239173ff'/%3E%3Ccircle cx='47' cy='18' r='7' fill='%2370e0ba'/%3E%3Cpath d='M23 27l7 7m8-2l6-9M24 23l16-4' stroke='%238ea4d0' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="product-site.css">
   <script src="product-site.js" defer></script>
   <script type="application/ld+json">
@@ -124,6 +125,36 @@
       <div class="shell cockpit-heading reveal">
         <p class="section-label light">02 / THE COCKPIT</p>
         <h2>See the whole picture.<br><em>Keep the useful parts.</em></h2>
+      </div>
+      <div class="shell memory-lab reveal delay-1" data-memory-lab>
+        <div class="lab-topline"><span><i></i> LOCAL MEMORY LENS</span><span>SANITIZED SAMPLE DATA · NOTHING LEAVES THIS PAGE</span></div>
+        <div class="lab-layout">
+          <div class="lab-prompts" role="tablist" aria-label="Sample memory questions">
+            <p>ASK THE PAST</p>
+            <button id="memory-tab-decision" type="button" role="tab" aria-selected="true" aria-controls="memory-panel" tabindex="0" data-memory-view="decision"><span>01</span> Why local-first?</button>
+            <button id="memory-tab-relation" type="button" role="tab" aria-selected="false" aria-controls="memory-panel" tabindex="-1" data-memory-view="relation"><span>02</span> What connects?</button>
+            <button id="memory-tab-quality" type="button" role="tab" aria-selected="false" aria-controls="memory-panel" tabindex="-1" data-memory-view="quality"><span>03</span> What needs review?</button>
+          </div>
+          <div class="lab-answer" id="memory-panel" role="tabpanel" aria-labelledby="memory-tab-decision" aria-live="polite">
+            <div class="answer-query"><span>SEMANTIC QUERY</span><strong data-memory-query>Why did we choose local-first memory?</strong></div>
+            <article class="answer-card">
+              <div><span data-memory-type>DECISION</span><b data-memory-score>94% MATCH</b></div>
+              <h3 data-memory-title>Keep durable context on the user's machine.</h3>
+              <p data-memory-summary>The dashboard binds to localhost; the compatible bridge remains the source of truth.</p>
+            </article>
+            <div class="answer-trail">
+              <div><span>SOURCE</span><strong data-memory-source>Architecture decision</strong></div>
+              <div><span>RELATION</span><strong data-memory-relation>privacy → local bridge</strong></div>
+              <div><span>QUALITY</span><strong data-memory-quality>USEFUL</strong></div>
+            </div>
+          </div>
+          <div class="lab-map" aria-hidden="true">
+            <span class="map-node origin">query</span><span class="map-node context">context</span><span class="map-node outcome">outcome</span><span class="map-node project">project</span>
+            <i class="map-line one"></i><i class="map-line two"></i><i class="map-line three"></i>
+            <strong data-memory-map>DECISION PATH</strong>
+          </div>
+        </div>
+        <p class="lab-note">Illustration only. The real cockpit queries your configured local database and preserves source, quality and project scope.</p>
       </div>
       <div class="shell demo-frame reveal delay-1">
         <div class="frame-bar"><span></span><span></span><span></span><small>LOCALHOST · 127.0.0.1</small></div>
