@@ -9,7 +9,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-f6c15b?style=flat-square)](LICENSE)
 [![Local-first](https://img.shields.io/badge/privacy-local--first-7ee787?style=flat-square)](#privacy)
 [![MCP compatible](https://img.shields.io/badge/MCP-compatible-7c3aed?style=flat-square)](#connect-your-tools)
-[![Product site](https://img.shields.io/badge/product%20site-live-4dc8ff?style=flat-square)](https://luisroquette.github.io/youre-always_on_my_mind-free/)
+[![Product site](https://img.shields.io/badge/product%20site-live-4dc8ff?style=flat-square)](https://luisroquette-labs.github.io/youre-always_on_my_mind-free/)
 
 `claude-mem` · `Claude Code` · `Codex` · `Cursor` · `Lovable` · `Replit` · `Antigravity`
 
@@ -75,7 +75,7 @@ also need a local claude-mem-compatible bridge. If it is not at the default
 path, set `YOURE_ALWAYS_ON_MY_MIND_BRIDGE_PATH` before `npm run doctor`.
 
 ```bash
-git clone https://github.com/luisroquette/youre-always_on_my_mind-free.git
+git clone https://github.com/luisroquette-labs/youre-always_on_my_mind-free.git
 cd youre-always_on_my_mind-free
 npm install
 npm run doctor
