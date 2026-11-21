@@ -68,7 +68,7 @@ for (const path of paths) {
   const positions = kind === 'js' ? jsComments(source, path)
     : kind === 'hash' ? hashComments(source)
     : [...source.matchAll(kind === 'css' ? /\/\*/g : /<!--/g)].map(match => source.slice(0, match.index).split('\n').length);
-  if (path.endsWith('.env.example')) {
+  if (path === 'examples/always-on-my-mind.env.example') {
     if (positions.length > 5) failures.push(`${path}: template comment debt grew from 5 to ${positions.length}`);
     continue;
   }
