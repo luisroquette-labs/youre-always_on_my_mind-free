@@ -6,6 +6,8 @@
 
 **claude-mem remembers. You see the whole picture.**
 
+<img src="assets/brand/icon.svg" width="96" height="96" alt="You're Always on My Mind logo">
+
 [![MIT License](https://img.shields.io/badge/license-MIT-f6c15b?style=flat-square)](LICENSE)
 [![Local-first](https://img.shields.io/badge/privacy-local--first-7ee787?style=flat-square)](#privacy)
 [![MCP compatible](https://img.shields.io/badge/MCP-compatible-7c3aed?style=flat-square)](#connect-your-tools)
@@ -30,6 +32,17 @@ gives you a decision layer for accumulated context.
 ![A local memory graph connecting AI coding sessions](assets/readme/hero.svg)
 
 ## See it work
+
+English dashboard, fictional demo data, nothing from a real memory database:
+
+![Project graph](docs/ph/01-project-graph.png)
+![Clusters](docs/ph/02-clusters.png)
+![Memory search and quality](docs/ph/03-memory-search.png)
+![Timeline](docs/ph/04-timeline.png)
+![Alerts](docs/ph/05-alerts.png)
+![Safe cleanup](docs/ph/06-safe-cleanup.png)
+
+[Short walkthrough](docs/ph/walkthrough.mp4) · [GIF](docs/ph/walkthrough.gif)
 
 ![A sanitized product walkthrough: question, context cluster, connected memory graph and decision cockpit](assets/readme/demo.gif)
 
@@ -68,11 +81,36 @@ must secure yourself.
 
 ## Get started
 
-Requires Node.js 22+ and `sqlite3` for the compatible SQLite bridge.
+Requires Node.js 22+. One command clones the app, installs it, and opens the
+cockpit. If `~/.claude-mem/claude-mem.db` is missing, it opens fictional demo
+data instead of failing.
 
-This is a **claude-mem companion**: to use the dashboard and MCP server, you
-also need a local claude-mem-compatible bridge. If it is not at the default
-path, set `YOURE_ALWAYS_ON_MY_MIND_BRIDGE_PATH` before `npm run doctor`.
+```bash
+curl -fsSL https://raw.githubusercontent.com/luisroquette-labs/youre-always_on_my_mind-free/main/scripts/install.sh | bash
+```
+
+Open `http://127.0.0.1:4317`. The same installer accepts `--demo`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/luisroquette-labs/youre-always_on_my_mind-free/main/scripts/install.sh | bash -s -- --demo
+```
+
+From a checkout, `npm run dashboard` reads your local claude-mem database.
+`npm run dashboard -- --demo` or `http://127.0.0.1:4317/?demo=1` shows the
+fictional set used for the screenshots below. The interface is English. Add
+`?lang=pt` or use the EN / PT switch for Portuguese.
+
+This project is not affiliated with claude-mem. claude-mem keeps the memory
+and ships its own viewer (`/viewer` on its worker) for the live stream,
+sessions, and settings. You're Always on My Mind is the complementary cockpit:
+graph, clusters, quality, timeline, and a read-only cleanup preview. The
+built-in reader never deletes from `claude-mem.db`. Set
+`YOURE_ALWAYS_ON_MY_MIND_BRIDGE_PATH` only if you still have an external bridge.
+
+The repository name ends in `-free` because the product is free under MIT.
+There is no paid edition.
+
+### From a clone
 
 ```bash
 git clone https://github.com/luisroquette-labs/youre-always_on_my_mind-free.git
@@ -82,8 +120,6 @@ npm run doctor
 npm test
 npm run dashboard
 ```
-
-Open `http://127.0.0.1:4317`.
 
 ### One-command client setup
 

@@ -1,14 +1,10 @@
 import { appendFile, mkdir, readFile } from "node:fs/promises";
-import { promisify } from "node:util";
-import { execFile } from "node:child_process";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { buildAutomaticClusters, buildSemanticRelations } from "../semantic-relations.mjs";
 import { config } from "./config.mjs";
-
-const execFileAsync = promisify(execFile);
-const BRIDGE_PATH = config.bridgePath;
+import { dispatchMemory } from "./gateway.mjs";
 const FEEDBACK_PATH = config.feedbackPath;
 const CHARACTER_LIMIT = 20_000;
 let relationsCache;
@@ -20,25 +16,7 @@ function toolResult(payload, isError = false) {
 }
 
 async function bridge(args) {
-  let lastError;
-  const maximumAttempts = args[0] === "cleanup-delete" ? 1 : 3;
-  for (let attempt = 0; attempt < maximumAttempts; attempt += 1) {
-    try {
-      const isSemantic = args[0] === "semantic" || args[0] === "cleanup-candidates";
-      const isHealth = args[0] === "health";
-      const isLocalEmbedding = args[0] === "semantic-search";
-      const { stdout } = await execFileAsync(BRIDGE_PATH, args, {
-        maxBuffer: isSemantic ? 16_000_000 : CHARACTER_LIMIT * 4,
-        timeout: isHealth ? 45_000 : isSemantic ? 25_000 : isLocalEmbedding ? 60_000 : 12_000,
-      });
-      return JSON.parse(stdout.trim());
-    } catch (error) {
-      lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
-    }
-  }
-  const detail = String(lastError?.stderr ?? lastError?.message ?? "Unknown bridge failure").trim().split("\n").filter(Boolean).at(-1);
-  throw new Error(`Memory gateway could not complete the request: ${detail}`);
+  return dispatchMemory(args, { locale: "en" });
 }
 
 async function semanticRelations() {
@@ -91,7 +69,7 @@ async function rankRecords(records, includeObsolete) {
     .map(({ sourceIndex, ...record }) => record);
 }
 
-const server = new McpServer({ name: "youre-always-on-my-mind", version: "0.1.0" });
+const server = new McpServer({ name: "youre-always-on-my-mind", version: "0.3.0" });
 
 server.registerTool("search_memory", {
   title: "Search Shared Memory",

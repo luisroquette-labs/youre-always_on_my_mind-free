@@ -4,15 +4,14 @@ import { existsSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
-import { execFile } from "node:child_process";
 import { buildAutomaticClusters, buildSemanticRelations } from "./semantic-relations.mjs";
 import { config } from "./src/config.mjs";
+import { dispatchMemory } from "./src/gateway.mjs";
+import { demoDispatch } from "./dashboard/demo-data.mjs";
 
-const execFileAsync = promisify(execFile);
 const root = fileURLToPath(new URL(".", import.meta.url));
-const port = Number(process.env.MEMORY_GATEWAY_DASHBOARD_PORT ?? 4317);
-const bridgePath = config.bridgePath;
+const port = Number(process.env.MEMORY_GATEWAY_DASHBOARD_PORT ?? process.argv.find((value, index) => process.argv[index - 1] === "--port") ?? 4317);
+const forceDemo = process.argv.includes("--demo") || process.env.YOURE_ALWAYS_ON_MY_MIND_DEMO === "1";
 const databasePath = config.databasePath;
 const feedbackPath = config.feedbackPath;
 const remotePassword = process.env.MEMORY_GATEWAY_REMOTE_PASSWORD ?? "";
@@ -23,11 +22,14 @@ const staticFiles = new Map([
   ["/assets/app.js", join(root, "dashboard", "app.js")],
   ["/assets/persistent-layout.js", join(root, "dashboard", "persistent-layout.js")],
   ["/assets/styles.css", join(root, "dashboard", "styles.css")],
+  ["/assets/i18n.js", join(root, "dashboard", "i18n.js")],
+  ["/assets/icon.svg", join(root, "assets", "brand", "icon.svg")],
+  ["/assets/icon-240.png", join(root, "assets", "brand", "icon-240.png")],
   ["/vendor/three.module.js", join(root, "node_modules", "three", "build", "three.module.js")],
   ["/vendor/three.core.js", join(root, "node_modules", "three", "build", "three.core.js")],
   ["/vendor/OrbitControls.js", join(root, "node_modules", "three", "examples", "jsm", "controls", "OrbitControls.js")],
 ]);
-const contentTypes = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8" };
+const contentTypes = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png" };
 let overviewCache;
 let cacheExpiresAt = 0;
 let healthCache = { ok: null, integrity: "checking", schema_baseline: "checking", fts_ready: null };
@@ -35,30 +37,32 @@ let semanticCache;
 let semanticCacheKey = "";
 const timelineCache = new Map();
 
-async function bridge(args) {
-  let lastError;
-  const maximumAttempts = args[0] === "cleanup-delete" ? 1 : 3;
-  for (let attempt = 0; attempt < maximumAttempts; attempt += 1) {
-    try {
-      const isSemantic = args[0] === "semantic" || args[0] === "cleanup-candidates";
-      const isHealth = args[0] === "health";
-      const isLocalEmbedding = args[0] === "semantic-search";
-      const { stdout } = await execFileAsync(bridgePath, args, {
-        maxBuffer: isSemantic ? 16_000_000 : 1_000_000,
-        timeout: isHealth ? 45_000 : isSemantic ? 25_000 : isLocalEmbedding ? 60_000 : 12_000,
-      });
-      return JSON.parse(stdout.trim());
-    } catch (error) {
-      lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, 200 * (attempt + 1)));
-    }
-  }
-  throw lastError;
+function requestLocale(request, url) {
+  const query = url?.searchParams?.get("lang") ?? "";
+  if (query) return query.toLowerCase().startsWith("pt") ? "pt" : "en";
+  return String(request?.headers?.["accept-language"] ?? "").toLowerCase().startsWith("pt") ? "pt" : "en";
 }
 
-function bridgeError(error) {
-  const detail = String(error?.stderr ?? error?.message ?? "Operação recusada.").trim().split("\n").filter(Boolean).at(-1);
-  return detail || "Operação recusada.";
+function requestContext(request, url) {
+  return {
+    demo: forceDemo || url?.searchParams?.get("demo") === "1",
+    locale: requestLocale(request, url),
+  };
+}
+
+async function bridge(args, context = { demo: forceDemo, locale: "en" }) {
+  if (context.demo) return demoDispatch(args, context.locale);
+  return dispatchMemory(args, { locale: context.locale });
+}
+
+function bridgeError(error, locale = "en") {
+  const fallback = locale === "pt" ? "Operação recusada." : "Operation refused.";
+  const detail = String(error?.stderr ?? error?.message ?? fallback).trim().split("\n").filter(Boolean).at(-1);
+  return detail || fallback;
+}
+
+function say(locale, en, pt) {
+  return locale === "pt" ? pt : en;
 }
 
 async function jsonBody(request, maximumBytes = 64_000) {
@@ -80,9 +84,9 @@ function localOriginAllowed(request) {
   return !origin || origin === `http://127.0.0.1:${port}` || origin === `http://localhost:${port}`;
 }
 
-function cleanupIds(value) {
+function cleanupIds(value, locale) {
   if (!Array.isArray(value) || value.length < 1 || value.length > 500 || value.some((id) => !Number.isInteger(id) || id < 1)) {
-    throw new Error("Selecione entre 1 e 500 memórias candidatas.");
+    throw new Error(say(locale, "Select between 1 and 500 candidate memories.", "Selecione entre 1 e 500 memórias candidatas."));
   }
   return [...new Set(value)].sort((left, right) => left - right);
 }
@@ -131,27 +135,30 @@ async function readFeedback() {
   return counts;
 }
 
-async function semanticGraph(projects, database) {
-  const key = `${database.size}:${database.mtimeMs}`;
-  if (semanticCache && semanticCacheKey === key) return semanticCache;
-  const payload = await bridge(["semantic", "120"]);
-  semanticCache = buildSemanticRelations(payload, projects.map(({ project }) => project));
-  semanticCache.clusters = buildAutomaticClusters(semanticCache, projects);
-  semanticCache.metadata.generated_at = new Date().toISOString();
-  semanticCacheKey = key;
-  return semanticCache;
+async function semanticGraph(projects, database, context) {
+  const key = `${context.demo ? "demo" : "live"}:${context.locale}:${database.size}:${database.mtimeMs}`;
+  if (!context.demo && semanticCache && semanticCacheKey === key) return semanticCache;
+  const payload = await bridge(["semantic", "120"], context);
+  const graph = buildSemanticRelations(payload, projects.map(({ project }) => project));
+  graph.clusters = buildAutomaticClusters(graph, projects, context.locale);
+  graph.metadata.generated_at = new Date().toISOString();
+  if (!context.demo) {
+    semanticCache = graph;
+    semanticCacheKey = key;
+  }
+  return graph;
 }
 
-async function overview() {
-  if (overviewCache && Date.now() < cacheExpiresAt) return overviewCache;
-  const [stats, recent, rawProjects, feedback, database, embeddings, alerts] = await Promise.all([
-    bridge(["stats"]),
-    bridge(["recent", "16"]),
-    bridge(["projects", "80"]),
-    readFeedback(),
-    stat(databasePath),
-    bridge(["embedding-health"]),
-    bridge(["alerts"]),
+async function overview(context = { demo: forceDemo, locale: "en" }) {
+  if (!context.demo && overviewCache && Date.now() < cacheExpiresAt) return overviewCache;
+  const database = context.demo ? { size: 18_743_296, mtimeMs: 0 } : await stat(databasePath);
+  const [stats, recent, rawProjects, feedback, embeddings, alerts] = await Promise.all([
+    bridge(["stats"], context),
+    bridge(["recent", "16"], context),
+    bridge(["projects", "80"], context),
+    context.demo ? { useful: 42, incorrect: 3, obsolete: 1 } : readFeedback(),
+    bridge(["embedding-health"], context),
+    bridge(["alerts"], context),
   ]);
   const maximum = Math.max(1, ...rawProjects.map((project) => project.observations));
   const baseProjects = rawProjects.map((project) => {
@@ -169,7 +176,7 @@ async function overview() {
       saturation: saturationScore >= 78 ? "high" : saturationScore >= 58 ? "watch" : "healthy",
     };
   });
-  const semantic = await semanticGraph(baseProjects, database);
+  const semantic = await semanticGraph(baseProjects, database, context);
   const projects = baseProjects.map((project) => ({
     ...project,
     ...(semantic.project_metrics[project.project] ?? { connections: 0, semantic_strength: 0 }),
@@ -179,7 +186,7 @@ async function overview() {
   const reinforce = active.filter((project) => project.observations <= 4).sort((a, b) => a.observations - b.observations).slice(0, 8);
   const saturated = [...projects].sort((a, b) => b.saturation_score - a.saturation_score).slice(0, 8);
   const review = projects.filter((project) => project.age_days >= 180 && project.observations >= 5).sort((a, b) => b.observations - a.observations).slice(0, 8);
-  overviewCache = {
+  const payload = {
     stats: stats[0],
     health: healthCache,
     feedback,
@@ -195,19 +202,29 @@ async function overview() {
     database_bytes: database.size,
     embeddings,
     alerts,
-    access: { remote: Boolean(remotePassword), read_only: remoteReadOnly },
+    access: { remote: Boolean(remotePassword) && !context.demo, read_only: context.demo ? false : remoteReadOnly },
+    demo: Boolean(context.demo),
+    fictional: Boolean(context.demo),
+    companion: {
+      affiliated: false,
+      statement: "Independent project, not affiliated with claude-mem.",
+      viewer_url: context.demo ? null : healthCache.viewer?.url ?? null,
+      reader: context.demo ? "fictional-demo" : config.reader,
+    },
     refreshed_at: new Date().toISOString(),
   };
+  if (context.demo) return payload;
+  overviewCache = payload;
   cacheExpiresAt = Date.now() + 15_000;
   return overviewCache;
 }
 
 async function refreshHealth() {
   try {
-    healthCache = await bridge(["health"]);
+    healthCache = await bridge(["health"], { demo: forceDemo, locale: "en" });
     cacheExpiresAt = 0;
   } catch {
-    // Keep serving the last state while the capture worker holds a short SQLite lock.
+    // Keep serving the last state while claude-mem holds a short SQLite lock.
   }
 }
 
@@ -225,37 +242,38 @@ createServer(async (request, response) => {
       response.end("Authentication required.");
       return;
     }
-    if (remoteReadOnly && !["GET", "HEAD"].includes(request.method ?? "")) {
-      sendJson(response, 403, { error: "Acesso remoto somente leitura." });
+    const requestUrl = new URL(request.url ?? "/", `http://127.0.0.1:${port}`);
+    const context = requestContext(request, requestUrl);
+    if (remoteReadOnly && !context.demo && !["GET", "HEAD"].includes(request.method ?? "")) {
+      sendJson(response, 403, { error: say(context.locale, "Remote access is read only.", "Acesso remoto somente leitura.") });
       return;
     }
-    const requestUrl = new URL(request.url ?? "/", `http://127.0.0.1:${port}`);
     if (request.method === "GET" && requestUrl.pathname === "/api/overview") {
-      sendJson(response, 200, await overview());
+      sendJson(response, 200, await overview(context));
       return;
     }
     if (request.method === "GET" && requestUrl.pathname === "/api/alerts") {
       const project = requestUrl.searchParams.get("project") ?? "";
       if (project.length > 120) {
-        sendJson(response, 400, { error: "Projeto inválido." });
+        sendJson(response, 400, { error: say(context.locale, "Invalid project.", "Projeto inválido.") });
         return;
       }
-      sendJson(response, 200, await bridge(project ? ["alerts", "--project", project] : ["alerts"]));
+      sendJson(response, 200, await bridge(project ? ["alerts", "--project", project] : ["alerts"], context));
       return;
     }
     if (request.method === "PUT" && requestUrl.pathname === "/api/alerts/config") {
       if (!localOriginAllowed(request)) {
-        sendJson(response, 403, { error: "Origem não autorizada." });
+        sendJson(response, 403, { error: say(context.locale, "Origin is not allowed.", "Origem não autorizada.") });
         return;
       }
       const input = await jsonBody(request, 32_000);
       let result;
       try {
         result = input.reset
-          ? await bridge(["alert-config-reset"])
-          : await bridge(["alert-config-set", "--json", JSON.stringify(input.config ?? {})]);
+          ? await bridge(["alert-config-reset"], context)
+          : await bridge(["alert-config-set", "--json", JSON.stringify(input.config ?? {})], context);
       } catch (error) {
-        sendJson(response, 400, { error: bridgeError(error) });
+        sendJson(response, 400, { error: bridgeError(error, context.locale) });
         return;
       }
       overviewCache = undefined;
@@ -268,26 +286,30 @@ createServer(async (request, response) => {
       const kind = requestUrl.searchParams.get("kind") ?? "all";
       const limit = requestUrl.searchParams.get("limit") ?? "250";
       if (!["all", "duplicate", "obsolete"].includes(kind) || !/^[1-9][0-9]{0,2}$/.test(limit) || Number(limit) > 500) {
-        sendJson(response, 400, { error: "Filtros de limpeza inválidos." });
+        sendJson(response, 400, { error: say(context.locale, "Invalid cleanup filters.", "Filtros de limpeza inválidos.") });
         return;
       }
       const args = ["cleanup-candidates", "--kind", kind, "--limit", limit];
       if (project) args.push("--project", project);
-      sendJson(response, 200, await bridge(args));
+      sendJson(response, 200, await bridge(args, context));
       return;
     }
     if (request.method === "GET" && requestUrl.pathname === "/api/timeline") {
       const range = requestUrl.searchParams.get("range") ?? "90";
       const bucket = requestUrl.searchParams.get("bucket") ?? "auto";
       if (!["30", "90", "180", "365", "all"].includes(range) || !["auto", "day", "week", "month"].includes(bucket)) {
-        sendJson(response, 400, { error: "Filtros temporais inválidos." });
+        sendJson(response, 400, { error: say(context.locale, "Invalid timeline filters.", "Filtros temporais inválidos.") });
+        return;
+      }
+      if (context.demo) {
+        sendJson(response, 200, await bridge(["timeline", range, bucket], context));
         return;
       }
       const database = await stat(databasePath);
-      const key = `${range}:${bucket}:${database.size}:${database.mtimeMs}`;
+      const key = `${context.locale}:${range}:${bucket}:${database.size}:${database.mtimeMs}`;
       if (!timelineCache.has(key)) {
         timelineCache.clear();
-        timelineCache.set(key, await bridge(["timeline", range, bucket]));
+        timelineCache.set(key, await bridge(["timeline", range, bucket], context));
       }
       sendJson(response, 200, timelineCache.get(key));
       return;
@@ -305,7 +327,7 @@ createServer(async (request, response) => {
         || !["keyword", "semantic"].includes(searchMode)
         || !/^(all|[\p{L}\p{N}_-]{1,80})$/u.test(type) || !/^[1-9][0-9]?$|^100$/.test(limit)
         || !/^[0-9]{1,6}$/.test(offset) || Number(offset) > 100_000) {
-        sendJson(response, 400, { error: "Filtros de memória inválidos." });
+        sendJson(response, 400, { error: say(context.locale, "Invalid memory filters.", "Filtros de memória inválidos.") });
         return;
       }
       const semanticSearch = searchMode === "semantic" && query.trim().length >= 2;
@@ -314,9 +336,9 @@ createServer(async (request, response) => {
         : ["project-memories", "--project", project, "--type", type, "--agent", agent, "--limit", limit, "--offset", offset];
       if (query && !semanticSearch) args.push("--query", query);
       try {
-        sendJson(response, 200, await bridge(args));
+        sendJson(response, 200, await bridge(args, context));
       } catch (error) {
-        sendJson(response, 409, { error: bridgeError(error) });
+        sendJson(response, 409, { error: bridgeError(error, context.locale) });
       }
       return;
     }
@@ -324,62 +346,62 @@ createServer(async (request, response) => {
     if (request.method === "GET" && memoryDetailMatch) {
       const project = requestUrl.searchParams.get("project") ?? "";
       if (!project || project.length > 120) {
-        sendJson(response, 400, { error: "O projeto da memória é obrigatório." });
+        sendJson(response, 400, { error: say(context.locale, "The memory project is required.", "O projeto da memória é obrigatório.") });
         return;
       }
       try {
-        sendJson(response, 200, await bridge(["inspect-memory", "--id", memoryDetailMatch[1], "--project", project]));
+        sendJson(response, 200, await bridge(["inspect-memory", "--id", memoryDetailMatch[1], "--project", project], context));
       } catch (error) {
-        sendJson(response, 404, { error: bridgeError(error) });
+        sendJson(response, 404, { error: bridgeError(error, context.locale) });
       }
       return;
     }
     if (request.method === "POST" && requestUrl.pathname === "/api/cleanup/preview") {
       if (!localOriginAllowed(request)) {
-        sendJson(response, 403, { error: "Origem não autorizada." });
+        sendJson(response, 403, { error: say(context.locale, "Origin is not allowed.", "Origem não autorizada.") });
         return;
       }
       const input = await jsonBody(request);
-      const ids = cleanupIds(input.ids);
+      const ids = cleanupIds(input.ids, context.locale);
       try {
-        sendJson(response, 200, await bridge(["cleanup-preview", "--ids", ids.join(",")]));
+        sendJson(response, 200, await bridge(["cleanup-preview", "--ids", ids.join(",")], context));
       } catch (error) {
-        sendJson(response, 409, { error: bridgeError(error) });
+        sendJson(response, 409, { error: bridgeError(error, context.locale) });
       }
       return;
     }
     if (request.method === "POST" && requestUrl.pathname === "/api/cleanup/simulate") {
       if (!localOriginAllowed(request)) {
-        sendJson(response, 403, { error: "Origem não autorizada." });
+        sendJson(response, 403, { error: say(context.locale, "Origin is not allowed.", "Origem não autorizada.") });
         return;
       }
       const input = await jsonBody(request);
-      const ids = cleanupIds(input.ids);
+      const ids = cleanupIds(input.ids, context.locale);
       try {
-        sendJson(response, 200, await bridge(["cleanup-simulate", "--ids", ids.join(",")]));
+        sendJson(response, 200, await bridge(["cleanup-simulate", "--ids", ids.join(",")], context));
       } catch (error) {
-        sendJson(response, 409, { error: bridgeError(error) });
+        sendJson(response, 409, { error: bridgeError(error, context.locale) });
       }
       return;
     }
     if (request.method === "POST" && requestUrl.pathname === "/api/cleanup/execute") {
       if (!localOriginAllowed(request)) {
-        sendJson(response, 403, { error: "Origem não autorizada." });
+        sendJson(response, 403, { error: say(context.locale, "Origin is not allowed.", "Origem não autorizada.") });
         return;
       }
       const input = await jsonBody(request);
-      const ids = cleanupIds(input.ids);
-      if (!/^[a-f0-9]{64}$/.test(input.confirmation_token ?? "") || input.phrase !== `EXCLUIR ${ids.length}`) {
-        sendJson(response, 400, { error: "Confirmação de exclusão inválida." });
+      const ids = cleanupIds(input.ids, context.locale);
+      if (!/^[a-f0-9]{64}$/.test(input.confirmation_token ?? "") || ![`DELETE ${ids.length}`, `EXCLUIR ${ids.length}`].includes(input.phrase)) {
+        sendJson(response, 400, { error: say(context.locale, "Invalid delete confirmation.", "Confirmação de exclusão inválida.") });
         return;
       }
       let result;
       try {
         result = await bridge([
           "cleanup-delete", "--ids", ids.join(","), "--confirm-token", input.confirmation_token, "--phrase", input.phrase,
-        ]);
+        ], context);
       } catch (error) {
-        sendJson(response, 409, { error: bridgeError(error) });
+        sendJson(response, 409, { error: bridgeError(error, context.locale) });
         return;
       }
       overviewCache = undefined;
@@ -395,7 +417,10 @@ createServer(async (request, response) => {
       response.end('{"error":"Not found"}');
       return;
     }
-    const body = await readFile(filePath);
+    let body = await readFile(filePath);
+    if (requestUrl.pathname === "/" && (forceDemo || requestUrl.searchParams.get("demo") === "1")) {
+      body = Buffer.from(body.toString("utf8").replace("</head>", "<script>window.__YAOM_DEMO__=true</script></head>"));
+    }
     response.writeHead(200, { "content-type": contentTypes[extname(filePath)] ?? "application/octet-stream", "cache-control": "no-cache" });
     response.end(body);
   } catch (error) {
@@ -403,5 +428,5 @@ createServer(async (request, response) => {
     response.end(JSON.stringify({ error: error instanceof Error ? error.message : "Dashboard error" }));
   }
 }).listen(port, "127.0.0.1", () => {
-  console.log(`${config.appName}: http://127.0.0.1:${port}`);
+  console.log(`${config.appName}${forceDemo ? " (fictional demo)" : ""}: http://127.0.0.1:${port}${forceDemo ? "/?demo=1" : ""}`);
 });

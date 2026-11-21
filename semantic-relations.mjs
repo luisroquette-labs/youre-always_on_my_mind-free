@@ -318,7 +318,36 @@ function weightedCommunities(projectNames, relations, resolution = 1.35) {
   return community;
 }
 
-function productLabel(projects, graph) {
+const CLUSTER_COPY = {
+  en: {
+    inferredCommunity: "Inferred community",
+    unidentified: "Unidentified",
+    projectName: "project name",
+    noTechnology: "No dominant technology",
+    legacyAgent: "Legacy / unidentified agent",
+    hybrid: "Hybrid Claude + Codex",
+    noProduct: "No identified product",
+    nameFamily: "name family",
+    weightedCommunity: "weighted semantic community",
+  },
+  pt: {
+    inferredCommunity: "Comunidade inferida",
+    unidentified: "Não identificado",
+    projectName: "nome do projeto",
+    noTechnology: "Sem tecnologia dominante",
+    legacyAgent: "Legado / agente não identificado",
+    hybrid: "Híbrido Claude + Codex",
+    noProduct: "Sem produto identificado",
+    nameFamily: "família nominal",
+    weightedCommunity: "comunidade semântica ponderada",
+  },
+};
+
+function copy(locale) {
+  return CLUSTER_COPY[locale === "pt" ? "pt" : "en"];
+}
+
+function productLabel(projects, graph, locale = "en") {
   if (projects.length === 1) return projects[0];
   const tokenCounts = new Map();
   const tokenOrder = [];
@@ -345,7 +374,7 @@ function productLabel(projects, graph) {
   const topics = topWeighted(topicScores, 4).map(({ term }) => term);
   const topicSet = new Set(topics);
   if (topicSet.has("instagram") || topicSet.has("ig-post") || topicSet.has("ig-sentinel") || topicSet.has("sentinel")) return "Instagram Publishing";
-  return topics.length ? titleCase(topics.slice(0, 2).join(" ")) : "Comunidade inferida";
+  return topics.length ? titleCase(topics.slice(0, 2).join(" ")) : copy(locale).inferredCommunity;
 }
 
 function stableClusterColor(axis, label) {
@@ -365,19 +394,20 @@ function projectFamilyKey(project) {
   return tokens.slice(0, 2).join("-");
 }
 
-function clientAssignment(project, allProjects) {
+function clientAssignment(project, allProjects, locale = "en") {
+  const text = copy(locale);
   const normalized = normalizedText(project);
-  if (normalized.includes("coesa")) return { label: "Coesa", confidence: "inferred", evidence: ["nome do projeto"] };
-  if (normalized.includes("gauss")) return { label: "Gauss", confidence: "inferred", evidence: ["nome do projeto"] };
+  if (normalized.includes("coesa")) return { label: "Coesa", confidence: "inferred", evidence: [text.projectName] };
+  if (normalized.includes("gauss")) return { label: "Gauss", confidence: "inferred", evidence: [text.projectName] };
   const prefix = normalized.split(/[^a-z0-9]+/).find(Boolean);
   const repeated = prefix && !GENERIC_PROJECT_TOKENS.has(prefix) && !["social", "acquisition", "ig"].includes(prefix)
     ? allProjects.filter((candidate) => normalizedText(candidate).split(/[^a-z0-9]+/).includes(prefix)).length
     : 0;
   if (repeated >= 2) return { label: titleCase(prefix), confidence: "inferred", evidence: [`namespace ${prefix}`] };
-  return { label: "Não identificado", confidence: "ambiguous", evidence: [] };
+  return { label: text.unidentified, confidence: "ambiguous", evidence: [] };
 }
 
-function technologyAssignment(project, graph) {
+function technologyAssignment(project, graph, locale = "en") {
   const signals = graph.project_signals[project] ?? { topics: [], files: [] };
   const topicText = signals.topics.map(({ term }) => term).join(" ");
   const fileText = signals.files.join(" ");
@@ -396,18 +426,18 @@ function technologyAssignment(project, graph) {
   const best = ranked[0];
   return best?.score > 0
     ? { label: best.label, confidence: "inferred", evidence: best.evidence }
-    : { label: "Sem tecnologia dominante", confidence: "ambiguous", evidence: [] };
+    : { label: copy(locale).noTechnology, confidence: "ambiguous", evidence: [] };
 }
 
-function agentAssignment(project) {
+function agentAssignment(project, locale = "en") {
   const claude = project.claude_observations ?? 0;
   const codex = project.codex_observations ?? 0;
   const total = claude + codex;
-  if (!total) return { label: "Legado / agente não identificado", confidence: "ambiguous", evidence: [] };
+  if (!total) return { label: copy(locale).legacyAgent, confidence: "ambiguous", evidence: [] };
   const ratio = codex / total;
   if (ratio >= .7) return { label: "Codex", confidence: "extracted", evidence: [`${Math.round(ratio * 100)}% Codex`] };
   if (ratio <= .3) return { label: "Claude", confidence: "extracted", evidence: [`${Math.round((1 - ratio) * 100)}% Claude`] };
-  return { label: "Híbrido Claude + Codex", confidence: "extracted", evidence: [`${Math.round((1 - ratio) * 100)}% / ${Math.round(ratio * 100)}%`] };
+  return { label: copy(locale).hybrid, confidence: "extracted", evidence: [`${Math.round((1 - ratio) * 100)}% / ${Math.round(ratio * 100)}%`] };
 }
 
 function facetClusters(axis, assignments, projectDetails, relations) {
@@ -439,7 +469,8 @@ function facetClusters(axis, assignments, projectDetails, relations) {
     });
 }
 
-export function buildAutomaticClusters(graph, projectDetails) {
+export function buildAutomaticClusters(graph, projectDetails, locale = "en") {
+  const text = copy(locale);
   const projectNames = projectDetails.map(({ project }) => project);
   const productAssignments = new Map();
   const familyGroups = new Map();
@@ -453,7 +484,7 @@ export function buildAutomaticClusters(graph, projectDetails) {
     if (!key || projects.length < 2) continue;
     const label = titleCase(key);
     for (const project of projects) {
-      productAssignments.set(project, { label, confidence: "extracted", evidence: [`família nominal ${key}`] });
+      productAssignments.set(project, { label, confidence: "extracted", evidence: [`${text.nameFamily} ${key}`] });
     }
   }
 
@@ -472,20 +503,20 @@ export function buildAutomaticClusters(graph, projectDetails) {
   for (const projects of communityGroups.values()) {
     const cohesion = clusterCohesion(projects, scores);
     if (projects.length >= 2 && cohesion >= .16) {
-      const label = productLabel(projects, graph);
+      const label = productLabel(projects, graph, locale);
       for (const project of projects) {
-        productAssignments.set(project, { label, confidence: "inferred", evidence: ["comunidade semântica ponderada"] });
+        productAssignments.set(project, { label, confidence: "inferred", evidence: [text.weightedCommunity] });
       }
     } else {
       unresolved.push(...projects);
     }
   }
   for (const project of unresolved) {
-    productAssignments.set(project, { label: "Sem produto identificado", confidence: "ambiguous", evidence: [] });
+    productAssignments.set(project, { label: text.noProduct, confidence: "ambiguous", evidence: [] });
   }
-  const clientAssignments = new Map(projectNames.map((project) => [project, clientAssignment(project, projectNames)]));
-  const technologyAssignments = new Map(projectNames.map((project) => [project, technologyAssignment(project, graph)]));
-  const agentAssignments = new Map(projectDetails.map((project) => [project.project, agentAssignment(project)]));
+  const clientAssignments = new Map(projectNames.map((project) => [project, clientAssignment(project, projectNames, locale)]));
+  const technologyAssignments = new Map(projectNames.map((project) => [project, technologyAssignment(project, graph, locale)]));
+  const agentAssignments = new Map(projectDetails.map((project) => [project.project, agentAssignment(project, locale)]));
   const assignmentByAxis = {
     product: productAssignments,
     client: clientAssignments,
@@ -509,7 +540,7 @@ export function buildAutomaticClusters(graph, projectDetails) {
     metadata: {
       method: "weighted-louvain-facets-v1",
       cluster_counts: Object.fromEntries(Object.entries(axes).map(([axis, clusters]) => [axis, clusters.length])),
-      ambiguous_clients: axes.client.find(({ label }) => label === "Não identificado")?.size ?? 0,
+      ambiguous_clients: axes.client.find(({ label }) => label === text.unidentified)?.size ?? 0,
     },
   };
 }

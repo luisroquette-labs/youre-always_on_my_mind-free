@@ -48,11 +48,14 @@ function nextConfig(existing, bridgePath) {
 }
 
 const options = optionsFrom(process.argv.slice(2));
-const bridgeExists = await readable(options.bridgePath);
-if (!bridgeExists) {
-  console.error(`Memory bridge not found: ${options.bridgePath}`);
-  console.error("Set --bridge to a compatible local bridge, then run setup again.");
-  process.exit(1);
+const explicitBridge = process.argv.includes("--bridge");
+if (explicitBridge || options.bridgePath) {
+  const bridgeExists = await readable(options.bridgePath);
+  if (!bridgeExists) {
+    console.error(`Memory bridge not found: ${options.bridgePath}`);
+    console.error("Set --bridge to a compatible local bridge, then run setup again. Omit it to use the built-in read-only claude-mem reader.");
+    process.exit(1);
+  }
 }
 const existing = await configAt(options.configPath);
 const hasServer = Boolean(existing.mcpServers?.["youre-always-on-my-mind"]);

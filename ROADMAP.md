@@ -6,6 +6,7 @@
 - [x] Claude Code, Codex, Cursor and Replit import paths.
 - [x] One-command local MCP onboarding and encrypted local backup/export.
 - [x] Copyable MCP client configurations and real workflow examples.
+- [x] English cockpit, optional Portuguese, fictional demo mode, and a read-only reader for the current claude-mem database.
 
 ## Next
 
