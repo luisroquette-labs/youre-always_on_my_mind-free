@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { parse } from 'parse5';
 import ts from 'typescript';
 
 function jsComments(source, path = 'source.js') {
@@ -37,6 +38,22 @@ function hashComments(source) {
   });
 }
 
+function htmlCommentCount(source) {
+  let count = 0;
+  function visit(node) {
+    if (node.nodeName === '#comment') count++;
+    if (node.nodeName === 'script') {
+      for (const child of node.childNodes ?? []) count += jsComments(child.value ?? '').length;
+    }
+    if (node.nodeName === 'style') {
+      for (const child of node.childNodes ?? []) count += [...(child.value ?? '').matchAll(/\/\*/g)].length;
+    }
+    for (const child of node.childNodes ?? []) visit(child);
+  }
+  visit(parse(source));
+  return count;
+}
+
 assert.equal(jsComments('const url = "https://site.test/a"; const s = `/* text */`;').length, 0);
 assert.equal(jsComments('const x = 1; // comment').length, 1);
 assert.equal(jsComments('try {} catch { /* comment */ }').length, 1);
@@ -44,7 +61,8 @@ assert.equal(jsComments('const Box = () => <div>{/* comment */}</div>;', 'source
 assert.equal(jsComments('const Box = () => <div> // text </div>;', 'source.jsx').length, 0);
 assert.equal(hashComments('uses: actions/checkout@hash # old').length, 1);
 assert.equal(hashComments('url: "https://site.test/#x"').length, 0);
-assert.equal([...'<script>const x = 1;</script >'.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script\s*>/gi)].length, 1);
+assert.equal(htmlCommentCount('<script>const x = 1;</script \t\n bar><div><!-- comment --></div>'), 1);
+assert.equal(htmlCommentCount('<script>const x = 1; // comment</script>'), 1);
 
 const paths = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' }).split('\0').filter(Boolean);
 const failures = [];
@@ -56,19 +74,14 @@ for (const path of paths) {
   if (!kind) continue;
   const source = readFileSync(path, 'utf8');
   if (path === 'graphify-out/graph.html') {
-    let count = [...source.matchAll(/<!--/g)].length;
-    for (const match of source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script\s*>/gi)) {
-      const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, ts.LanguageVariant.Standard, match[1]);
-      for (let token = scanner.scan(); token !== ts.SyntaxKind.EndOfFileToken; token = scanner.scan()) {
-        if (token === ts.SyntaxKind.SingleLineCommentTrivia || token === ts.SyntaxKind.MultiLineCommentTrivia) count++;
-      }
-    }
+    const count = htmlCommentCount(source);
     if (count > 23) failures.push(`${path}: generated comment debt grew from 23 to ${count}`);
     continue;
   }
   const positions = kind === 'js' ? jsComments(source, path)
     : kind === 'hash' ? hashComments(source)
-    : [...source.matchAll(kind === 'css' ? /\/\*/g : /<!--/g)].map(match => source.slice(0, match.index).split('\n').length);
+    : kind === 'css' ? [...source.matchAll(/\/\*/g)].map(match => source.slice(0, match.index).split('\n').length)
+    : Array.from({ length: htmlCommentCount(source) }, (_, index) => index + 1);
   if (path === 'examples/always-on-my-mind.env.example') {
     if (positions.length > 5) failures.push(`${path}: template comment debt grew from 5 to ${positions.length}`);
     continue;
