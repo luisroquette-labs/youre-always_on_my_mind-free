@@ -8,6 +8,8 @@ This application reads personal memory from local files and a local bridge. Feed
 
 Runtime paths come from environment variables, with local defaults. Malformed feedback records are skipped so an interrupted append does not hide earlier records. Invalid or unavailable browser storage resets the layout to deterministic coordinates. A failed health refresh keeps the last known dashboard state until the next refresh.
 
+Personal remote-dashboard scripts and deployment settings stay outside public forks through `.gitignore`.
+
 ## Consequences
 
 No account or remote configuration is required. A malformed feedback record is not shown, and dashboard health can briefly be stale. A user whose browser storage is unavailable receives the default layout.

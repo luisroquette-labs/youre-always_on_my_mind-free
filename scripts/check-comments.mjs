@@ -3,10 +3,14 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
 
-function jsComments(source) {
-  const ast = ts.createSourceFile('source.js', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+function jsComments(source, path = 'source.js') {
+  const kind = /\.tsx$/.test(path) ? ts.ScriptKind.TSX : /\.jsx$/.test(path) ? ts.ScriptKind.JSX
+    : /\.ts$/.test(path) ? ts.ScriptKind.TS : ts.ScriptKind.JS;
+  const ast = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, kind);
   const positions = new Set();
+  const jsxText = [];
   function visit(node) {
+    if (ts.isJsxText(node)) jsxText.push([node.pos, node.end]);
     if (node.kind === ts.SyntaxKind.SingleLineCommentTrivia || node.kind === ts.SyntaxKind.MultiLineCommentTrivia) positions.add(node.getStart(ast));
     for (const range of [
       ...(ts.getLeadingCommentRanges(source, node.getFullStart()) ?? []),
@@ -15,7 +19,7 @@ function jsComments(source) {
     for (const child of node.getChildren(ast)) visit(child);
   }
   visit(ast);
-  return [...positions];
+  return [...positions].filter(position => !jsxText.some(([start, end]) => start <= position && position < end));
 }
 
 function hashComments(source) {
@@ -36,14 +40,16 @@ function hashComments(source) {
 assert.equal(jsComments('const url = "https://site.test/a"; const s = `/* text */`;').length, 0);
 assert.equal(jsComments('const x = 1; // comment').length, 1);
 assert.equal(jsComments('try {} catch { /* comment */ }').length, 1);
+assert.equal(jsComments('const Box = () => <div>{/* comment */}</div>;', 'source.tsx').length, 1);
+assert.equal(jsComments('const Box = () => <div> // text </div>;', 'source.jsx').length, 0);
 assert.equal(hashComments('uses: actions/checkout@hash # old').length, 1);
 assert.equal(hashComments('url: "https://site.test/#x"').length, 0);
 
 const paths = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' }).split('\0').filter(Boolean);
 const failures = [];
 for (const path of paths) {
-  const kind = /\.(?:js|mjs)$/.test(path) ? 'js'
-    : /\.(?:yml|yaml|sh|py)$/.test(path) ? 'hash'
+  const kind = /\.(?:cjs|mjs|js|jsx|ts|tsx)$/.test(path) ? 'js'
+    : /\.(?:yml|yaml|sh|py)$/.test(path) || path === '.gitignore' || path.endsWith('.env.example') ? 'hash'
     : /\.css$/.test(path) ? 'css'
     : /\.html$/.test(path) ? 'html' : null;
   if (!kind) continue;
@@ -59,9 +65,13 @@ for (const path of paths) {
     if (count > 23) failures.push(`${path}: generated comment debt grew from 23 to ${count}`);
     continue;
   }
-  const positions = kind === 'js' ? jsComments(source)
+  const positions = kind === 'js' ? jsComments(source, path)
     : kind === 'hash' ? hashComments(source)
     : [...source.matchAll(kind === 'css' ? /\/\*/g : /<!--/g)].map(match => source.slice(0, match.index).split('\n').length);
+  if (path.endsWith('.env.example')) {
+    if (positions.length > 5) failures.push(`${path}: template comment debt grew from 5 to ${positions.length}`);
+    continue;
+  }
   for (const position of positions) {
     const line = kind === 'js' ? source.slice(0, position).split('\n').length : position;
     failures.push(`${path}:${line}: comment is forbidden`);
@@ -70,4 +80,4 @@ for (const path of paths) {
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exitCode = 1;
-} else console.log('Comment ratchet passed: zero source comments; generated report <= 23.');
+} else console.log('Comment ratchet passed: zero source comments; generated report <= 23; env template <= 5.');
