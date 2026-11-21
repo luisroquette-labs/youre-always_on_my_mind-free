@@ -1,12 +1,13 @@
 {
   "name": "youre_always_on_my_mind",
-  "version": "0.2.0",
-  "description": "A local-first visual intelligence cockpit for claude-mem and MCP-compatible AI development tools.",
+  "version": "0.3.0",
+  "description": "The visual memory cockpit for claude-mem. Local, free, and not affiliated with claude-mem.",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "dashboard": "node dashboard.mjs",
+    "demo": "node dashboard.mjs --demo",
     "doctor": "node scripts/doctor.mjs",
     "setup": "node scripts/setup.mjs",
     "adoption": "node scripts/adoption.mjs",
@@ -14,7 +15,10 @@
     "import:sessions": "node scripts/import-sessions.mjs",
     "lint:comments": "node scripts/check-comments.mjs",
     "preflight:ci": "npm run lint:comments && npm test && node scripts/validate-site.mjs",
-    "test": "node test/alerts.test.mjs && node test/embeddings.test.mjs && node test/semantic-relations.test.mjs && node test/timeline.test.mjs && node test/persistent-layout.test.mjs && node test/memory-quality.test.mjs && node test/project-memory.test.mjs && node test/cleanup.test.mjs && node test/import-sessions.test.mjs && node test/setup.test.mjs && node test/backup.test.mjs && node test/adoption.test.mjs && node test/e2e.js"
+    "test": "node test/alerts.test.mjs && node test/embeddings.test.mjs && node test/semantic-relations.test.mjs && node test/timeline.test.mjs && node test/persistent-layout.test.mjs && node test/memory-quality.test.mjs && node test/project-memory.test.mjs && node test/cleanup.test.mjs && node test/import-sessions.test.mjs && node test/setup.test.mjs && node test/backup.test.mjs && node test/adoption.test.mjs && node test/i18n-catalog.test.mjs && node test/demo-mode.test.mjs && node test/claude-mem-bridge.test.mjs && node test/doctor-bridge.test.mjs && node test/e2e.js"
+  },
+  "bin": {
+    "youre-always-on-my-mind": "./bin/youre-always-on-my-mind.mjs"
   },
   "engines": {
     "node": ">=22"

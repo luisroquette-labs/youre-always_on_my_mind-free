@@ -1,10 +1,12 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#030619">
   <title>You're Always on My Mind</title>
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/icon-240.png">
   <link rel="stylesheet" href="/assets/styles.css">
   <script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
 </head>
@@ -12,45 +14,51 @@
   <main class="app">
     <header class="masthead">
       <div>
-        <p class="eyebrow">memória local · clientes MCP</p>
+        <p class="eyebrow" data-i18n="Local memory · MCP clients">Local memory · MCP clients</p>
         <h1>You're Always on My Mind</h1>
+        <p class="companion-note"><span data-i18n="Independent project, not affiliated with claude-mem.">Independent project, not affiliated with claude-mem.</span> <a id="viewer-link" hidden data-i18n="Open claude-mem viewer" href="">Open claude-mem viewer</a></p>
       </div>
       <div class="header-status">
-        <div class="remote-pill" id="remote-pill" hidden><span></span><strong>Remoto · somente leitura</strong></div>
-        <button class="alert-pill" id="alert-pill" data-action="alerts" aria-live="polite"><span></span><strong id="alert-pill-label">Verificando alertas</strong></button>
-        <div class="health-pill" id="health-pill"><span></span><strong>Verificando</strong></div>
+        <div class="locale-switch" role="group" data-i18n-aria="Language" aria-label="Language">
+          <button type="button" data-set-locale="en" aria-pressed="true">EN</button>
+          <button type="button" data-set-locale="pt" aria-pressed="false">PT</button>
+        </div>
+        <div class="remote-pill" id="remote-pill" hidden><span></span><strong data-i18n="Remote · read only">Remote · read only</strong></div>
+        <button class="alert-pill" id="alert-pill" data-action="alerts" aria-live="polite"><span></span><strong id="alert-pill-label" data-i18n="Checking alerts">Checking alerts</strong></button>
+        <div class="health-pill" id="health-pill"><span></span><strong data-i18n="Checking">Checking</strong></div>
       </div>
     </header>
+    <p class="demo-banner" id="demo-banner" hidden data-i18n="Demo data · fictional projects. Nothing here is a real user, client, or database.">Demo data · fictional projects. Nothing here is a real user, client, or database.</p>
 
-    <section class="summary" aria-label="Resumo da memória">
-      <article><span>Memórias</span><strong id="total-observations">—</strong></article>
-      <article><span>Projetos</span><strong id="total-projects">—</strong></article>
-      <article><span>Banco local</span><strong id="database-size">—</strong></article>
-      <article><span>Relações reais</span><strong id="semantic-count">—</strong></article>
-      <article><span>Saturados</span><strong id="saturated-count">—</strong></article>
-      <article><span>Índice semântico</span><strong id="embedding-coverage">—</strong></article>
+    <section class="summary" data-i18n-aria="Memory summary" aria-label="Memory summary">
+      <article><span data-i18n="Memories">Memories</span><strong id="total-observations">—</strong></article>
+      <article><span data-i18n="Projects">Projects</span><strong id="total-projects">—</strong></article>
+      <article><span data-i18n="Local database">Local database</span><strong id="database-size">—</strong></article>
+      <article><span data-i18n="Real relations">Real relations</span><strong id="semantic-count">—</strong></article>
+      <article><span data-i18n="Saturated">Saturated</span><strong id="saturated-count">—</strong></article>
+      <article><span data-i18n="Semantic index">Semantic index</span><strong id="embedding-coverage">—</strong></article>
     </section>
 
-    <nav class="mode-switcher" aria-label="Organizar rede">
-      <button class="active" data-mode="volume">Volume</button>
-      <button data-mode="activity">Atividade</button>
-      <button data-mode="agent">Claude × Codex</button>
-      <button data-mode="relations">Relações</button>
-      <button data-mode="clusters">Clusters</button>
-      <button data-mode="saturation">Saturação</button>
-      <button data-mode="reinforce">Reforçar</button>
-      <button class="alert-entry" data-action="alerts">Alertas <b id="alert-nav-count">—</b></button>
-      <button data-action="timeline">Linha do tempo</button>
-      <button class="cleanup-entry" data-action="cleanup">Limpeza segura</button>
+    <nav class="mode-switcher" data-i18n-aria="Organize the network" aria-label="Organize the network">
+      <button class="active" data-mode="volume" data-i18n="Volume">Volume</button>
+      <button data-mode="activity" data-i18n="Activity">Activity</button>
+      <button data-mode="agent" data-i18n="Claude × Codex">Claude × Codex</button>
+      <button data-mode="relations" data-i18n="Relations">Relations</button>
+      <button data-mode="clusters" data-i18n="Clusters">Clusters</button>
+      <button data-mode="saturation" data-i18n="Saturation">Saturation</button>
+      <button data-mode="reinforce" data-i18n="Reinforce">Reinforce</button>
+      <button class="alert-entry" data-action="alerts"><span data-i18n="Alerts">Alerts</span> <b id="alert-nav-count">—</b></button>
+      <button data-action="timeline" data-i18n="Timeline">Timeline</button>
+      <button class="cleanup-entry" data-action="cleanup" data-i18n="Safe cleanup">Safe cleanup</button>
     </nav>
 
-    <section class="cluster-toolbar" id="cluster-toolbar" hidden aria-label="Organização automática por clusters">
-      <div class="cluster-axis" role="group" aria-label="Eixo do cluster">
-        <span>AGLUTINAR POR</span>
-        <button class="active" data-cluster-axis="product">Produto</button>
-        <button data-cluster-axis="client">Cliente</button>
-        <button data-cluster-axis="technology">Tecnologia</button>
-        <button data-cluster-axis="agent">Agente</button>
+    <section class="cluster-toolbar" id="cluster-toolbar" hidden data-i18n-aria="Automatic cluster organization" aria-label="Automatic cluster organization">
+      <div class="cluster-axis" role="group" data-i18n-aria="Cluster axis" aria-label="Cluster axis">
+        <span data-i18n="GROUP BY">GROUP BY</span>
+        <button class="active" data-cluster-axis="product" data-i18n="Product">Product</button>
+        <button data-cluster-axis="client" data-i18n="Client">Client</button>
+        <button data-cluster-axis="technology" data-i18n="Technology">Technology</button>
+        <button data-cluster-axis="agent" data-i18n="Agent">Agent</button>
       </div>
       <div class="cluster-list" id="cluster-list"></div>
     </section>
@@ -58,64 +66,64 @@
     <section class="alerts-panel" id="alerts-panel" hidden aria-labelledby="alerts-title">
       <header class="alerts-hero">
         <div>
-          <p class="eyebrow">Sistema imunológico local</p>
-          <h2 id="alerts-title">Alertas configuráveis</h2>
-          <p>Observe saturação, inatividade e inconsistências com regras transparentes. Nenhum serviço externo é acionado.</p>
+          <p class="eyebrow" data-i18n="Local immune system">Local immune system</p>
+          <h2 id="alerts-title" data-i18n="Configurable alerts">Configurable alerts</h2>
+          <p data-i18n="Watch saturation, inactivity, and inconsistencies with transparent rules. No external service is called.">Watch saturation, inactivity, and inconsistencies with transparent rules. No external service is called.</p>
         </div>
-        <button class="quiet-button" data-close-alerts>Voltar à rede</button>
+        <button class="quiet-button" data-close-alerts data-i18n="Back to the network">Back to the network</button>
       </header>
 
-      <div class="alert-summary" aria-label="Resumo dos alertas">
-        <article><span>Ativos</span><strong id="alert-total">—</strong></article>
-        <article><span>Críticos</span><strong id="alert-critical">—</strong></article>
-        <article><span>Avisos</span><strong id="alert-warning">—</strong></article>
-        <article><span>Projetos silenciados</span><strong id="alert-muted">—</strong></article>
+      <div class="alert-summary" data-i18n-aria="Alert summary" aria-label="Alert summary">
+        <article><span data-i18n="Active">Active</span><strong id="alert-total">—</strong></article>
+        <article><span data-i18n="Critical">Critical</span><strong id="alert-critical">—</strong></article>
+        <article><span data-i18n="Warnings">Warnings</span><strong id="alert-warning">—</strong></article>
+        <article><span data-i18n="Muted projects">Muted projects</span><strong id="alert-muted">—</strong></article>
       </div>
 
       <div class="alert-console">
         <aside class="alert-rules">
           <div class="alert-rules-head">
-            <div><p class="eyebrow">Limiares globais</p><h2>Regras de vigilância</h2></div>
-            <label class="master-switch"><input id="alerts-enabled" type="checkbox"><span>Sistema ativo</span></label>
+            <div><p class="eyebrow" data-i18n="Global thresholds">Global thresholds</p><h2 data-i18n="Watch rules">Watch rules</h2></div>
+            <label class="master-switch"><input id="alerts-enabled" type="checkbox"><span data-i18n="System on">System on</span></label>
           </div>
 
           <article class="alert-rule saturation">
-            <header><i></i><div><strong>Saturação</strong><small>Volume relativo + idade</small></div><label><input id="alert-saturation-enabled" type="checkbox"><span>Ativa</span></label></header>
+            <header><i></i><div><strong data-i18n="Saturation">Saturation</strong><small data-i18n="Relative volume + age">Relative volume + age</small></div><label><input id="alert-saturation-enabled" type="checkbox"><span data-i18n="On">On</span></label></header>
             <div class="alert-rule-fields">
-              <label><span>Pressão mínima</span><input id="alert-saturation-threshold" type="number" min="40" max="100"><small>%</small></label>
-              <label><span>Mínimo de memórias</span><input id="alert-saturation-minimum" type="number" min="1" max="100000"></label>
+              <label><span data-i18n="Minimum pressure">Minimum pressure</span><input id="alert-saturation-threshold" type="number" min="40" max="100"><small>%</small></label>
+              <label><span data-i18n="Minimum memories">Minimum memories</span><input id="alert-saturation-minimum" type="number" min="1" max="100000"></label>
             </div>
           </article>
 
           <article class="alert-rule stale">
-            <header><i></i><div><strong>Desatualização</strong><small>Dias desde a última memória</small></div><label><input id="alert-stale-enabled" type="checkbox"><span>Ativa</span></label></header>
+            <header><i></i><div><strong data-i18n="Staleness">Staleness</strong><small data-i18n="Days since the last memory">Days since the last memory</small></div><label><input id="alert-stale-enabled" type="checkbox"><span data-i18n="On">On</span></label></header>
             <div class="alert-rule-fields">
-              <label><span>Sem atividade</span><input id="alert-stale-days" type="number" min="7" max="3650"><small>dias</small></label>
-              <label><span>Mínimo de memórias</span><input id="alert-stale-minimum" type="number" min="1" max="100000"></label>
+              <label><span data-i18n="No activity">No activity</span><input id="alert-stale-days" type="number" min="7" max="3650"><small data-i18n="days">days</small></label>
+              <label><span data-i18n="Minimum memories">Minimum memories</span><input id="alert-stale-minimum" type="number" min="1" max="100000"></label>
             </div>
           </article>
 
           <article class="alert-rule inconsistent">
-            <header><i></i><div><strong>Inconsistência</strong><small>Títulos repetidos, feedback e lacunas</small></div><label><input id="alert-inconsistent-enabled" type="checkbox"><span>Ativa</span></label></header>
+            <header><i></i><div><strong data-i18n="Inconsistency">Inconsistency</strong><small data-i18n="Repeated titles, feedback, and gaps">Repeated titles, feedback, and gaps</small></div><label><input id="alert-inconsistent-enabled" type="checkbox"><span data-i18n="On">On</span></label></header>
             <div class="alert-rule-fields triple">
-              <label><span>Títulos repetidos</span><input id="alert-duplicate-threshold" type="number" min="1" max="10000"></label>
-              <label><span>Feedback incorreto</span><input id="alert-incorrect-threshold" type="number" min="1" max="10000"></label>
-              <label><span>Títulos ausentes</span><input id="alert-missing-threshold" type="number" min="1" max="10000"></label>
+              <label><span data-i18n="Repeated titles">Repeated titles</span><input id="alert-duplicate-threshold" type="number" min="1" max="10000"></label>
+              <label><span data-i18n="Incorrect feedback">Incorrect feedback</span><input id="alert-incorrect-threshold" type="number" min="1" max="10000"></label>
+              <label><span data-i18n="Missing titles">Missing titles</span><input id="alert-missing-threshold" type="number" min="1" max="10000"></label>
             </div>
           </article>
 
           <div class="alert-config-actions">
-            <button class="quiet-button" id="alert-reset">Restaurar padrões</button>
-            <button class="impact-button" id="alert-save">Salvar regras</button>
+            <button class="quiet-button" id="alert-reset" data-i18n="Restore defaults">Restore defaults</button>
+            <button class="impact-button" id="alert-save" data-i18n="Save rules">Save rules</button>
           </div>
           <p class="alert-save-status" id="alert-save-status" aria-live="polite"></p>
-          <div class="alert-muted-list" id="alert-muted-list" aria-label="Projetos silenciados"></div>
+          <div class="alert-muted-list" id="alert-muted-list" data-i18n-aria="Muted projects list" aria-label="Muted projects list"></div>
         </aside>
 
         <article class="alert-feed">
           <header>
-            <div><p class="eyebrow">Sinais ativos</p><h2>Projetos que pedem atenção</h2></div>
-            <label><span>Filtrar</span><select id="alert-kind-filter"><option value="all">Todos</option><option value="saturation">Saturação</option><option value="stale">Desatualizados</option><option value="inconsistent">Inconsistentes</option></select></label>
+            <div><p class="eyebrow" data-i18n="Active signals">Active signals</p><h2 data-i18n="Projects that need attention">Projects that need attention</h2></div>
+            <label><span data-i18n="Filter">Filter</span><select id="alert-kind-filter"><option value="all" data-i18n="All">All</option><option value="saturation" data-i18n="Saturation">Saturation</option><option value="stale" data-i18n="Stale">Stale</option><option value="inconsistent" data-i18n="Inconsistent">Inconsistent</option></select></label>
           </header>
           <div class="alert-list" id="alert-list" role="list" aria-live="polite"></div>
         </article>
@@ -125,57 +133,57 @@
     <section class="timeline-panel" id="timeline-panel" hidden aria-labelledby="timeline-title">
       <header class="timeline-hero">
         <div>
-          <p class="eyebrow">Anéis de crescimento</p>
-          <h2 id="timeline-title">História viva da memória</h2>
-          <p>Crescimento, pressão por projeto e alternância Claude × Codex em uma leitura contínua.</p>
+          <p class="eyebrow" data-i18n="Growth rings">Growth rings</p>
+          <h2 id="timeline-title" data-i18n="Living memory history">Living memory history</h2>
+          <p data-i18n="Growth, pressure by project, and the Claude × Codex mix in one continuous reading.">Growth, pressure by project, and the Claude × Codex mix in one continuous reading.</p>
         </div>
         <div class="timeline-actions">
-          <div class="range-switcher" role="group" aria-label="Período da linha do tempo">
-            <button data-timeline-range="30">30 dias</button>
-            <button class="active" data-timeline-range="90">90 dias</button>
-            <button data-timeline-range="180">180 dias</button>
-            <button data-timeline-range="all">Tudo</button>
+          <div class="range-switcher" role="group" data-i18n-aria="Timeline range" aria-label="Timeline range">
+            <button data-timeline-range="30" data-i18n="30 days">30 days</button>
+            <button class="active" data-timeline-range="90" data-i18n="90 days">90 days</button>
+            <button data-timeline-range="180" data-i18n="180 days">180 days</button>
+            <button data-timeline-range="all" data-i18n="All time">All time</button>
           </div>
-          <label><span>Agrupar</span><select id="timeline-bucket"><option value="auto">Automático</option><option value="day">Dia</option><option value="week">Semana</option><option value="month">Mês</option></select></label>
-          <button class="quiet-button" data-close-timeline>Voltar à rede</button>
+          <label><span data-i18n="Group">Group</span><select id="timeline-bucket"><option value="auto" data-i18n="Automatic">Automatic</option><option value="day" data-i18n="Day">Day</option><option value="week" data-i18n="Week">Week</option><option value="month" data-i18n="Month">Month</option></select></label>
+          <button class="quiet-button" data-close-timeline data-i18n="Back to the network">Back to the network</button>
         </div>
       </header>
 
-      <div class="timeline-summary" aria-label="Resumo histórico">
-        <article><span>Crescimento</span><strong id="timeline-growth">—</strong><small id="timeline-growth-note"></small></article>
-        <article><span>Saturados agora</span><strong id="timeline-saturated">—</strong><small id="timeline-saturated-note"></small></article>
-        <article><span>Concentração top 3</span><strong id="timeline-concentration">—</strong><small id="timeline-concentration-note"></small></article>
-        <article><span>Participação Codex</span><strong id="timeline-codex">—</strong><small id="timeline-codex-note"></small></article>
+      <div class="timeline-summary" data-i18n-aria="Historical summary" aria-label="Historical summary">
+        <article><span data-i18n="Growth">Growth</span><strong id="timeline-growth">—</strong><small id="timeline-growth-note"></small></article>
+        <article><span data-i18n="Saturated now">Saturated now</span><strong id="timeline-saturated">—</strong><small id="timeline-saturated-note"></small></article>
+        <article><span data-i18n="Top 3 concentration">Top 3 concentration</span><strong id="timeline-concentration">—</strong><small id="timeline-concentration-note"></small></article>
+        <article><span data-i18n="Codex share">Codex share</span><strong id="timeline-codex">—</strong><small id="timeline-codex-note"></small></article>
       </div>
 
       <article class="growth-vessel">
         <div class="timeline-chart-head">
-          <div><p class="eyebrow">Fluxo acumulado</p><h2>Crescimento da memória</h2></div>
-          <div class="chart-legend"><span><i class="growth-line"></i>Total</span><span><i class="growth-bar"></i>Novas no período</span></div>
+          <div><p class="eyebrow" data-i18n="Cumulative flow">Cumulative flow</p><h2 data-i18n="Memory growth">Memory growth</h2></div>
+          <div class="chart-legend"><span><i class="growth-line"></i><span data-i18n="Total">Total</span></span><span><i class="growth-bar"></i><span data-i18n="New in period">New in period</span></span></div>
         </div>
-        <div class="timeline-chart" id="growth-chart" role="group" aria-label="Gráfico de crescimento acumulado da memória"></div>
+        <div class="timeline-chart" id="growth-chart" role="group" data-i18n-aria="Cumulative memory growth chart" aria-label="Cumulative memory growth chart"></div>
         <div class="timeline-cursor-card" id="timeline-cursor-card" aria-live="polite"></div>
       </article>
 
       <div class="timeline-secondary">
         <article>
           <div class="timeline-chart-head">
-            <div><p class="eyebrow">Pressão sistêmica</p><h2>Saturação e concentração</h2></div>
-            <div class="chart-legend"><span><i class="saturation-line"></i>Concentração</span><span><i class="saturation-dot"></i>Projetos saturados</span></div>
+            <div><p class="eyebrow" data-i18n="System pressure">System pressure</p><h2 data-i18n="Saturation and concentration">Saturation and concentration</h2></div>
+            <div class="chart-legend"><span><i class="saturation-line"></i><span data-i18n="Concentration">Concentration</span></span><span><i class="saturation-dot"></i><span data-i18n="Saturated projects">Saturated projects</span></span></div>
           </div>
-          <div class="timeline-chart compact" id="saturation-chart" role="group" aria-label="Gráfico histórico de saturação"></div>
+          <div class="timeline-chart compact" id="saturation-chart" role="group" data-i18n-aria="Historical saturation chart" aria-label="Historical saturation chart"></div>
         </article>
         <article>
           <div class="timeline-chart-head">
-            <div><p class="eyebrow">Coautoria</p><h2>Claude × Codex</h2></div>
-            <div class="chart-legend"><span><i class="legacy-line"></i>Legado</span><span><i class="claude-line"></i>Claude</span><span><i class="codex-line"></i>Codex</span></div>
+            <div><p class="eyebrow" data-i18n="Co-authorship">Co-authorship</p><h2 data-i18n="Claude × Codex">Claude × Codex</h2></div>
+            <div class="chart-legend"><span><i class="legacy-line"></i><span data-i18n="Legacy">Legacy</span></span><span><i class="claude-line"></i>Claude</span><span><i class="codex-line"></i>Codex</span></div>
           </div>
-          <div class="timeline-chart compact" id="agent-chart" role="group" aria-label="Gráfico histórico da participação Claude, Codex e legado"></div>
+          <div class="timeline-chart compact" id="agent-chart" role="group" data-i18n-aria="Historical Claude, Codex, and legacy share chart" aria-label="Historical Claude, Codex, and legacy share chart"></div>
         </article>
       </div>
 
       <section class="timeline-events">
-        <div><p class="eyebrow">Pontos de inflexão</p><h2>O que mudou</h2></div>
+        <div><p class="eyebrow" data-i18n="Turning points">Turning points</p><h2 data-i18n="What changed">What changed</h2></div>
         <div class="event-list" id="timeline-event-list"></div>
       </section>
     </section>
@@ -183,55 +191,55 @@
     <section class="cleanup-panel" id="cleanup-panel" hidden aria-labelledby="cleanup-title">
       <header class="cleanup-hero">
         <div>
-          <p class="eyebrow">Câmara de descontaminação</p>
-          <h2 id="cleanup-title">Limpeza segura da memória</h2>
-          <p>Selecione candidatos, simule o espaço recuperável e confirme. Nenhuma memória é apagada automaticamente.</p>
+          <p class="eyebrow" data-i18n="Decontamination chamber">Decontamination chamber</p>
+          <h2 id="cleanup-title" data-i18n="Safe memory cleanup">Safe memory cleanup</h2>
+          <p data-i18n="Select candidates, simulate recoverable space, and confirm. No memory is deleted automatically.">Select candidates, simulate recoverable space, and confirm. No memory is deleted automatically.</p>
         </div>
-        <button class="quiet-button" data-close-cleanup>Voltar à rede</button>
+        <button class="quiet-button" data-close-cleanup data-i18n="Back to the network">Back to the network</button>
       </header>
 
-      <div class="cleanup-summary" aria-label="Resumo dos candidatos">
-        <article><span>Candidatos</span><strong id="cleanup-total">—</strong></article>
-        <article><span>Recomendados</span><strong id="cleanup-recommended">—</strong></article>
-        <article><span>Projetos afetados</span><strong id="cleanup-projects">—</strong></article>
-        <article><span>Conteúdo estimado</span><strong id="cleanup-bytes">—</strong></article>
+      <div class="cleanup-summary" data-i18n-aria="Candidate summary" aria-label="Candidate summary">
+        <article><span data-i18n="Candidates">Candidates</span><strong id="cleanup-total">—</strong></article>
+        <article><span data-i18n="Recommended">Recommended</span><strong id="cleanup-recommended">—</strong></article>
+        <article><span data-i18n="Affected projects">Affected projects</span><strong id="cleanup-projects">—</strong></article>
+        <article><span data-i18n="Estimated content">Estimated content</span><strong id="cleanup-bytes">—</strong></article>
       </div>
 
       <div class="safety-rail">
         <span class="safety-lock" aria-hidden="true"></span>
-        <div><strong>Quatro barreiras ativas</strong><p>Candidato válido → prévia → frase exata → quarentena restaurável e auditoria.</p></div>
+        <div><strong data-i18n="Four barriers active">Four barriers active</strong><p data-i18n="Valid candidate, then preview, then the exact phrase, then a restorable quarantine and an audit.">Valid candidate, then preview, then the exact phrase, then a restorable quarantine and an audit.</p></div>
       </div>
 
       <div class="cleanup-controls">
-        <label><span>Projeto</span><select id="cleanup-project-filter"><option value="">Todos</option></select></label>
-        <label><span>Tipo</span><select id="cleanup-kind-filter"><option value="all">Duplicadas + obsoletas</option><option value="duplicate">Duplicadas</option><option value="obsolete">Obsoletas</option></select></label>
-        <label class="cleanup-search"><span>Buscar candidato</span><input id="cleanup-search" type="search" placeholder="Título ou projeto"></label>
-        <button class="quiet-button" id="cleanup-refresh">Reanalisar</button>
+        <label><span data-i18n="Project">Project</span><select id="cleanup-project-filter"><option value="" data-i18n="All">All</option></select></label>
+        <label><span data-i18n="Type">Type</span><select id="cleanup-kind-filter"><option value="all" data-i18n="Duplicates + obsolete">Duplicates + obsolete</option><option value="duplicate" data-i18n="Duplicates">Duplicates</option><option value="obsolete" data-i18n="Obsolete">Obsolete</option></select></label>
+        <label class="cleanup-search"><span data-i18n="Search candidates">Search candidates</span><input id="cleanup-search" type="search" data-i18n-placeholder="Title or project" placeholder="Title or project"></label>
+        <button class="quiet-button" id="cleanup-refresh" data-i18n="Reanalyze">Reanalyze</button>
       </div>
 
       <div class="cleanup-workspace">
         <article class="candidate-chamber">
           <div class="candidate-head">
-            <div><span class="eyebrow">Triagem manual</span><h2>Memórias candidatas</h2></div>
+            <div><span class="eyebrow" data-i18n="Manual triage">Manual triage</span><h2 data-i18n="Candidate memories">Candidate memories</h2></div>
             <div class="candidate-actions">
-              <button class="quiet-button" id="select-recommended">Selecionar recomendações</button>
-              <button class="quiet-button" id="clear-cleanup-selection">Limpar seleção</button>
+              <button class="quiet-button" id="select-recommended" data-i18n="Select recommendations">Select recommendations</button>
+              <button class="quiet-button" id="clear-cleanup-selection" data-i18n="Clear selection">Clear selection</button>
             </div>
           </div>
-          <p class="candidate-note">“Título repetido” indica apenas semelhança e exige revisão humana. Recomendações são conteúdo idêntico ou registros marcados como obsoletos.</p>
+          <p class="candidate-note" data-i18n="“Repeated title” only means the text looks alike and needs a human review. Recommendations are identical content or records marked obsolete.">“Repeated title” only means the text looks alike and needs a human review. Recommendations are identical content or records marked obsolete.</p>
           <div class="candidate-list" id="cleanup-candidate-list" role="list"></div>
         </article>
 
         <aside class="impact-chamber" aria-live="polite">
           <div>
-            <span class="eyebrow">Antes de excluir</span>
-            <h2>Simulador de poda</h2>
+            <span class="eyebrow" data-i18n="Before deleting">Before deleting</span>
+            <h2 data-i18n="Prune simulator">Prune simulator</h2>
           </div>
           <div id="cleanup-impact" class="impact-empty">
-            <strong>Nenhuma memória selecionada</strong>
-            <p>Marque os registros que deseja avaliar. A análise ainda não altera o banco.</p>
+            <strong data-i18n="No memory selected">No memory selected</strong>
+            <p data-i18n="Mark the records you want to evaluate. Analysis does not change the database yet.">Mark the records you want to evaluate. Analysis does not change the database yet.</p>
           </div>
-          <button class="impact-button" id="preview-cleanup" disabled>Simular poda</button>
+          <button class="impact-button" id="preview-cleanup" disabled data-i18n="Simulate prune">Simulate prune</button>
         </aside>
       </div>
     </section>
@@ -240,22 +248,22 @@
       <article class="neural-panel">
         <div class="panel-heading">
           <div>
-            <span class="eyebrow" id="mode-kicker">Organização por volume</span>
-            <h2>Rede neural de projetos</h2>
+            <span class="eyebrow" id="mode-kicker" data-i18n="By volume">By volume</span>
+            <h2 data-i18n="Project neural network">Project neural network</h2>
           </div>
-          <p>Arraste para girar · scroll para zoom · clique para selecionar</p>
+          <p data-i18n="Drag to rotate · scroll to zoom · click to select">Drag to rotate · scroll to zoom · click to select</p>
         </div>
-        <div id="scene" aria-label="Rede neural 3D de projetos"></div>
+        <div id="scene" data-i18n-aria="3D project neural network" aria-label="3D project neural network"></div>
         <div class="scene-legend">
           <span class="agent-color-key"><i class="codex"></i>Codex</span>
           <span class="agent-color-key"><i class="claude"></i>Claude</span>
-          <span class="agent-color-key"><i class="mixed"></i>Misto</span>
+          <span class="agent-color-key"><i class="mixed"></i><span data-i18n="Mixed">Mixed</span></span>
           <span id="cluster-color-key" hidden><i class="cluster-key"></i><span></span></span>
-          <span><b></b>Volume da esfera ∝ memórias</span>
-          <span class="layout-status"><i></i>Layout persistente</span>
-          <span><em class="edge-files"></em>Arquivo</span>
-          <span><em class="edge-topics"></em>Assunto</span>
-          <span><em class="edge-decisions"></em>Decisão</span>
+          <span><b></b><span data-i18n="Sphere size ∝ memories">Sphere size ∝ memories</span></span>
+          <span class="layout-status"><i></i><span data-i18n="Persistent layout">Persistent layout</span></span>
+          <span><em class="edge-files"></em><span data-i18n="File">File</span></span>
+          <span><em class="edge-topics"></em><span data-i18n="Topic">Topic</span></span>
+          <span><em class="edge-decisions"></em><span data-i18n="Decision">Decision</span></span>
         </div>
         <div class="tooltip" id="tooltip" hidden></div>
       </article>
@@ -263,10 +271,10 @@
       <aside class="navigator">
         <div class="navigator-head">
           <div>
-            <span class="eyebrow">Navegação precisa</span>
-            <h2>Projetos</h2>
+            <span class="eyebrow" data-i18n="Precise navigation">Precise navigation</span>
+            <h2 data-i18n="Projects">Projects</h2>
           </div>
-          <label class="search"><span>Buscar</span><input id="project-search" type="search" placeholder="Nome do projeto"></label>
+          <label class="search"><span data-i18n="Search">Search</span><input id="project-search" type="search" data-i18n-placeholder="Project name" placeholder="Project name"></label>
         </div>
         <div class="project-list" id="project-list" role="list"></div>
       </aside>
@@ -274,41 +282,41 @@
 
     <section class="detail-panel" id="detail-panel" aria-live="polite">
       <div class="detail-empty">
-        <span class="eyebrow">Seleção</span>
-        <h2>Escolha uma esfera ou projeto</h2>
-        <p>Você verá volume, origem, atividade e sinais de saturação sem poluir a rede.</p>
+        <span class="eyebrow" data-i18n="Selection">Selection</span>
+        <h2 data-i18n="Choose a sphere or a project">Choose a sphere or a project</h2>
+        <p data-i18n="You will see volume, origin, activity, and saturation without cluttering the network.">You will see volume, origin, activity, and saturation without cluttering the network.</p>
       </div>
     </section>
 
     <section class="signals" id="signals-panel">
       <article>
         <span class="signal-icon saturation"></span>
-        <div><p class="eyebrow">Saturação</p><h2>Memória acumulada</h2><p>Projetos densos que merecem revisão de duplicatas e registros antigos.</p></div>
+        <div><p class="eyebrow" data-i18n="Saturation">Saturation</p><h2 data-i18n="Accumulated memory">Accumulated memory</h2><p data-i18n="Dense projects that deserve a review of duplicates and old records.">Dense projects that deserve a review of duplicates and old records.</p></div>
         <div class="signal-list" id="saturation-list"></div>
       </article>
       <article>
         <span class="signal-icon reinforce"></span>
-        <div><p class="eyebrow">Reforço</p><h2>Contexto insuficiente</h2><p>Projetos ativos com poucas decisões persistidas.</p></div>
+        <div><p class="eyebrow" data-i18n="Reinforcement">Reinforcement</p><h2 data-i18n="Thin context">Thin context</h2><p data-i18n="Active projects with few persisted decisions.">Active projects with few persisted decisions.</p></div>
         <div class="signal-list" id="reinforce-list"></div>
       </article>
       <article>
         <span class="signal-icon review"></span>
-        <div><p class="eyebrow">Revisão</p><h2>Possível poda</h2><p>Projetos antigos e volumosos; nada é apagado automaticamente.</p></div>
+        <div><p class="eyebrow" data-i18n="Review">Review</p><h2 data-i18n="Possible prune">Possible prune</h2><p data-i18n="Old, high-volume projects. Nothing is deleted automatically.">Old, high-volume projects. Nothing is deleted automatically.</p></div>
         <div class="signal-list" id="review-list"></div>
       </article>
     </section>
 
     <dialog class="cleanup-dialog" id="cleanup-dialog" aria-labelledby="cleanup-dialog-title">
       <form method="dialog">
-        <button class="dialog-close" value="cancel" aria-label="Fechar">×</button>
-        <p class="eyebrow">Última barreira</p>
-        <h2 id="cleanup-dialog-title">Confirmar exclusão</h2>
+        <button class="dialog-close" value="cancel" data-i18n-aria="Close" aria-label="Close">×</button>
+        <p class="eyebrow" data-i18n="Last barrier">Last barrier</p>
+        <h2 id="cleanup-dialog-title" data-i18n="Confirm deletion">Confirm deletion</h2>
         <p id="cleanup-dialog-summary"></p>
-        <div class="backup-assurance"><span></span><p><strong>Recuperável por quarentena</strong><br>Uma cópia SQLite dos registros selecionados será criada antes da transação.</p></div>
-        <label class="confirm-label"><span>Digite <b id="cleanup-confirm-phrase"></b></span><input id="cleanup-confirm-input" autocomplete="off" spellcheck="false"></label>
+        <div class="backup-assurance"><span></span><p><strong data-i18n="Recoverable by quarantine">Recoverable by quarantine</strong><br><span data-i18n="A SQLite copy of the selected records is created before the transaction.">A SQLite copy of the selected records is created before the transaction.</span></p></div>
+        <label class="confirm-label"><span><span data-i18n="Type the phrase">Type the phrase</span> <b id="cleanup-confirm-phrase"></b></span><input id="cleanup-confirm-input" autocomplete="off" spellcheck="false"></label>
         <menu>
-          <button class="quiet-button" value="cancel">Cancelar</button>
-          <button class="delete-button" id="execute-cleanup" type="button" disabled>Excluir definitivamente</button>
+          <button class="quiet-button" value="cancel" data-i18n="Cancel">Cancel</button>
+          <button class="delete-button" id="execute-cleanup" type="button" disabled data-i18n="Delete permanently">Delete permanently</button>
         </menu>
       </form>
     </dialog>

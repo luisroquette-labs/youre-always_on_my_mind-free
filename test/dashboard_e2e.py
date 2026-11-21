@@ -37,9 +37,9 @@ with sync_playwright() as playwright:
     assert page.locator(".project-button").count() > 5
     assert page.locator(".signal-row").count() > 0
     assert int(page.locator("#semantic-count").inner_text()) > 0
-    assert page.locator("#embedding-coverage").inner_text() != "Pendente"
+    assert page.locator("#embedding-coverage").inner_text() != "Pending"
     assert int(page.locator("#alert-nav-count").inner_text()) > 0
-    assert "crítico" in page.locator("#alert-pill-label").inner_text().casefold()
+    assert "critical" in page.locator("#alert-pill-label").inner_text().casefold()
 
     sizes = page.evaluate("window.__memoryMyceliumDebug")
     relations = page.evaluate("window.__memoryMyceliumDebugRelations")
@@ -71,7 +71,7 @@ with sync_playwright() as playwright:
     assert layout["scope"] == "base"
     assert layout["persisted"] is True
     assert page.evaluate("Boolean(localStorage.getItem('youre-always-on-my-mind-layout-v1'))")
-    page.get_by_role("button", name="Atividade").click()
+    page.get_by_role("button", name="Activity").click()
     activity_positions = {
         node["project"]: node["position"]
         for node in page.evaluate("window.__memoryMyceliumDebug")
@@ -139,10 +139,10 @@ with sync_playwright() as playwright:
     page.locator("#alert-muted-list").get_by_role("button").click()
     page.wait_for_function("window.__memoryMyceliumAlerts?.muted === 0")
     page.screenshot(path=str(alerts_shot), full_page=True)
-    page.get_by_role("button", name="Voltar à rede").click()
+    page.get_by_role("button", name="Back to the network").click()
     assert page.locator("#graph-workspace").is_visible()
 
-    page.get_by_role("button", name="Linha do tempo").click()
+    page.get_by_role("button", name="Timeline").click()
     page.wait_for_selector("#growth-chart svg")
     assert page.locator("#timeline-panel").is_visible()
     assert not page.locator("#graph-workspace").is_visible()
@@ -155,10 +155,10 @@ with sync_playwright() as playwright:
     page.get_by_role("button", name="30 dias").click()
     page.wait_for_function("document.querySelectorAll('#growth-chart .timeline-hit').length >= 20")
     page.screenshot(path=str(timeline_shot), full_page=True)
-    page.get_by_role("button", name="Voltar à rede").click()
+    page.get_by_role("button", name="Back to the network").click()
     assert page.locator("#graph-workspace").is_visible()
 
-    page.get_by_role("button", name="Limpeza segura").click()
+    page.get_by_role("button", name="Safe cleanup").click()
     page.wait_for_selector(".candidate-row")
     assert page.locator("#cleanup-panel").is_visible()
     assert not page.locator("#graph-workspace").is_visible()
@@ -166,16 +166,16 @@ with sync_playwright() as playwright:
     first_candidate = page.locator(".candidate-row").first
     first_candidate.locator("input").check()
     page.get_by_role("button", name="Simular poda").click()
-    page.get_by_role("button", name="Validar seleção").wait_for()
+    page.get_by_role("button", name="Validate selection").wait_for()
     assert page.locator(".prune-simulator").is_visible()
-    assert "Redução imediata do arquivo" in page.locator(".prune-simulator").inner_text()
+    assert "Immediate file reduction" in page.locator(".prune-simulator").inner_text()
     assert "0 B" in page.locator(".prune-simulator").inner_text()
-    assert "Potencial após compactar" in page.locator(".prune-simulator").inner_text()
-    page.get_by_role("button", name="Validar seleção").click()
-    page.get_by_role("button", name="Continuar para confirmação").wait_for()
+    assert "Potential after compaction" in page.locator(".prune-simulator").inner_text()
+    page.get_by_role("button", name="Validate selection").click()
+    page.get_by_role("button", name="Continue to confirmation").wait_for()
     assert page.locator(".impact-metrics").is_visible()
     page.screenshot(path=str(cleanup_shot), full_page=True)
-    page.get_by_role("button", name="Continuar para confirmação").click()
+    page.get_by_role("button", name="Continue to confirmation").click()
     assert page.locator("#cleanup-dialog").is_visible()
     phrase = page.locator("#cleanup-confirm-phrase").inner_text()
     page.locator("#cleanup-confirm-input").fill("EXCLUIR 999")
@@ -183,7 +183,7 @@ with sync_playwright() as playwright:
     page.locator("#cleanup-confirm-input").fill(phrase)
     assert page.locator("#execute-cleanup").is_enabled()
     page.get_by_role("button", name="Cancelar").click()
-    page.get_by_role("button", name="Voltar à rede").click()
+    page.get_by_role("button", name="Back to the network").click()
     assert page.locator("#graph-workspace").is_visible()
 
     first_project = page.locator(".project-button").first
@@ -222,13 +222,13 @@ with sync_playwright() as playwright:
     assert "100 = perigoso apagar" in page.locator(".quality-panel").inner_text()
     page.screenshot(path=str(sphere_detail_shot), full_page=True)
 
-    page.get_by_role("button", name="Relações").click()
-    assert page.get_by_role("button", name="Relações").get_attribute("class") == "active"
-    assert "conexões semânticas reais" in page.locator("#mode-kicker").inner_text().casefold()
+    page.get_by_role("button", name="Relations").click()
+    assert page.get_by_role("button", name="Relations").get_attribute("class") == "active"
+    assert "real semantic links" in page.locator("#mode-kicker").inner_text().casefold()
 
-    page.get_by_role("button", name="Saturação").click()
-    assert "Organização por volume" not in page.locator("#mode-kicker").inner_text()
-    assert page.get_by_role("button", name="Saturação").get_attribute("class") == "active"
+    page.get_by_role("button", name="Saturation").click()
+    assert "By volume" not in page.locator("#mode-kicker").inner_text()
+    assert page.get_by_role("button", name="Saturation").get_attribute("class") == "active"
 
     page.locator("#project-search").fill(project_name)
     assert page.locator(".project-button").count() == 1
@@ -248,21 +248,21 @@ with sync_playwright() as playwright:
     mobile.wait_for_selector(".alert-row")
     assert mobile.locator("#alerts-panel").is_visible()
     assert mobile.locator(".alert-rule").count() == 3
-    mobile.get_by_role("button", name="Voltar à rede").click()
+    mobile.get_by_role("button", name="Back to the network").click()
     mobile.get_by_role("button", name="Clusters").click()
     assert mobile.locator("#cluster-toolbar").is_visible()
     assert mobile.locator('.cluster-chip[data-cluster-id]:not([data-cluster-id=""])').count() > 2
-    mobile.get_by_role("button", name="Linha do tempo").click()
+    mobile.get_by_role("button", name="Timeline").click()
     mobile.wait_for_selector("#growth-chart svg")
     assert mobile.locator("#timeline-panel").is_visible()
     mobile.screenshot(path=str(timeline_mobile_shot), full_page=True)
-    mobile.get_by_role("button", name="Voltar à rede").click()
-    mobile.get_by_role("button", name="Limpeza segura").click()
+    mobile.get_by_role("button", name="Back to the network").click()
+    mobile.get_by_role("button", name="Safe cleanup").click()
     mobile.wait_for_selector(".candidate-row")
     assert mobile.locator("#cleanup-panel").is_visible()
     mobile.locator(".candidate-row").first.locator("input").check()
     mobile.get_by_role("button", name="Simular poda").click()
-    mobile.get_by_role("button", name="Validar seleção").wait_for()
+    mobile.get_by_role("button", name="Validate selection").wait_for()
     assert mobile.locator(".prune-simulator").is_visible()
     mobile.screenshot(path=str(mobile_shot), full_page=True)
     mobile.close()

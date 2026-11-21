@@ -3,6 +3,23 @@
 You're Always on My Mind is a local MCP server. It deliberately separates the
 interface used by AI clients from the storage that holds your memories.
 
+## Built-in claude-mem reader
+
+Current claude-mem stores observations in `~/.claude-mem/claude-mem.db` and
+ships its own viewer at `/viewer` on the worker (the live stream, sessions,
+and settings). This cockpit does not replace that viewer and is not affiliated
+with claude-mem.
+
+When `YOURE_ALWAYS_ON_MY_MIND_BRIDGE_PATH` is unset and the old Codex bridge
+script is not installed, the server reads that SQLite file directly. The
+reader is schema-tolerant (`observations` plus optional `agent_type` or
+`platform_source`) and read-only: search, graph, timeline, alerts, and cleanup
+preview work; delete and record are refused so the worker database is not
+rewritten. `sqlite3` must be on `PATH`.
+
+`npm run dashboard -- --demo` and `?demo=1` never open that database. They
+serve fictional projects for screenshots and walkthroughs.
+
 ## Client connection
 
 Any client that supports an MCP server over standard input/output can use this

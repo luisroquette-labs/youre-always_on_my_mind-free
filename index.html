@@ -28,7 +28,7 @@
       "name": "You're Always on My Mind",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Linux, macOS, Windows",
-      "softwareVersion": "0.2.0",
+      "softwareVersion": "0.3.0",
       "description": "A local-first visual intelligence cockpit for claude-mem and MCP-compatible AI development tools.",
       "url": "https://luisroquette-labs.github.io/youre-always_on_my_mind-free/",
       "downloadUrl": "https://github.com/luisroquette-labs/youre-always_on_my_mind-free",
@@ -93,7 +93,7 @@
         <p class="section-label">01 / THE CONTINUITY LAYER</p>
         <div>
           <h2>Your memory already exists.<br><em>Now you can navigate it.</em></h2>
-          <p>claude-mem preserves decisions and outcomes. You're Always on My Mind turns that local history into a visual decision layer without replacing its source of truth.</p>
+          <p>claude-mem preserves decisions and outcomes and already ships its own viewer. You're Always on My Mind is a separate local cockpit for the graph, clusters, and quality. Independent project, not affiliated with claude-mem.</p>
         </div>
       </div>
 
@@ -108,7 +108,7 @@
         <article class="flow-card source reveal delay-1">
           <span>02 · PRESERVE</span>
           <h3>claude-mem</h3>
-          <p>Your compatible local bridge remains the source of truth.</p>
+          <p>claude-mem keeps the database. Its viewer stays the stream. This cockpit only reads it.</p>
           <div class="pulse-line"><i></i></div>
         </article>
         <div class="flow-arrow reveal delay-1" aria-hidden="true"><span>→</span><small>local bridge</small></div>
@@ -191,18 +191,13 @@
       <div class="shell install-layout">
         <div class="install-copy reveal">
           <p class="section-label">04 / START LOCAL</p>
-          <h2>Clone. Check.<br><em>Remember.</em></h2>
-          <p>Run the doctor before opening the cockpit. A compatible claude-mem bridge and SQLite are required.</p>
+          <h2>One command.<br><em>Remember.</em></h2>
+          <p>Node.js 22+. The installer opens fictional demo data when no claude-mem database is on the machine yet.</p>
           <a href="https://github.com/luisroquette-labs/youre-always_on_my_mind-free#connect-your-tools">Connect an MCP client <span aria-hidden="true">↗</span></a>
         </div>
         <div class="terminal reveal delay-1">
           <div class="terminal-top"><span></span><span></span><span></span><small>TERMINAL</small></div>
-          <pre><code data-install-command>git clone https://github.com/luisroquette-labs/youre-always_on_my_mind-free.git
-cd youre-always_on_my_mind-free
-npm install
-npm run doctor
-npm test
-npm run dashboard</code></pre>
+          <pre><code data-install-command>curl -fsSL https://raw.githubusercontent.com/luisroquette-labs/youre-always_on_my_mind-free/main/scripts/install.sh | bash</code></pre>
           <button type="button" data-copy-install><span>Copy commands</span><b aria-hidden="true">⌘C</b></button>
         </div>
       </div>
@@ -223,7 +218,7 @@ npm run dashboard</code></pre>
       <p>The visual memory cockpit for claude-mem.</p>
       <nav aria-label="Footer navigation"><a href="https://github.com/luisroquette-labs/youre-always_on_my_mind-free">Source</a><a href="https://github.com/luisroquette-labs/youre-always_on_my_mind-free/releases">Releases</a><a href="https://github.com/luisroquette-labs/youre-always_on_my_mind-free/blob/main/SECURITY.md">Security</a></nav>
     </div>
-    <div class="shell footer-meta"><span>© <span data-year></span> Luis Roquette</span><span>MIT licensed · Not affiliated with Anthropic</span></div>
+    <div class="shell footer-meta"><span>© <span data-year></span> Luis Roquette</span><span>MIT licensed · Free, no paid edition · Not affiliated with claude-mem</span></div>
   </footer>
 </body>
 </html>

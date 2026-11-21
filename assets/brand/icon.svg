@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">You're Always on My Mind</title>
+  <desc id="desc">Three luminous memory nodes linked on a deep navy field.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#071534"/>
+      <stop offset=".55" stop-color="#030619"/>
+      <stop offset="1" stop-color="#140b31"/>
+    </linearGradient>
+    <linearGradient id="link" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#4ecbff"/>
+      <stop offset=".55" stop-color="#9b8cff"/>
+      <stop offset="1" stop-color="#ff5fcf"/>
+    </linearGradient>
+    <radialGradient id="bloom" cx="50%" cy="40%" r="60%">
+      <stop stop-color="#4ecbff" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#4ecbff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="3.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="240" height="240" rx="52" fill="url(#bg)"/>
+  <circle cx="48" cy="28" r="90" fill="url(#bloom)"/>
+  <g fill="none" stroke="#6d86c4" stroke-opacity=".18" stroke-width="1">
+    <path d="M28 78h184M28 120h184M28 162h184"/>
+  </g>
+  <g fill="none" stroke="url(#link)" stroke-width="3.2" stroke-linecap="round" opacity=".9">
+    <path d="M78 92l46 42 40-58"/>
+    <path d="M124 134l34 28"/>
+  </g>
+  <circle cx="132" cy="128" r="46" fill="none" stroke="#ffc369" stroke-opacity=".85" stroke-width="3" stroke-dasharray="18 10" transform="rotate(-18 132 128)"/>
+  <g filter="url(#glow)">
+    <circle cx="78" cy="92" r="16" fill="#42c8ff"/>
+    <circle cx="124" cy="134" r="24" fill="#8d7bff"/>
+    <circle cx="164" cy="76" r="11" fill="#ff5fcf"/>
+    <circle cx="158" cy="162" r="8" fill="#76e5b5"/>
+  </g>
+  <circle cx="124" cy="134" r="7" fill="#edf4ff"/>
+</svg>
