@@ -63,7 +63,6 @@ function readRegistry(storage) {
     const parsed = JSON.parse(storage.getItem(LAYOUT_STORAGE_KEY) || "null");
     if (parsed?.version === LAYOUT_VERSION && parsed.scopes && typeof parsed.scopes === "object") return parsed;
   } catch {
-    // Invalid or unavailable browser storage falls back to deterministic coordinates.
   }
   return emptyRegistry();
 }

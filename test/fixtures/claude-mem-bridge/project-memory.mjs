@@ -71,7 +71,6 @@ function jsonList(value) {
     if (Array.isArray(parsed)) return parsed.map((item) => typeof item === "string" ? item : JSON.stringify(item));
     if (parsed && typeof parsed === "object") return Object.entries(parsed).map(([key, item]) => `${key}: ${item}`);
   } catch {
-    // Historical rows may contain plain text instead of JSON.
   }
   return [String(value)];
 }
@@ -109,7 +108,6 @@ function feedbackMap() {
       counts[event.label] += 1;
       feedback.set(event.observation_id, counts);
     } catch {
-      // Ignore incomplete append-only log lines.
     }
   }
   return feedback;

@@ -125,7 +125,6 @@ async function readFeedback() {
       const event = JSON.parse(line);
       if (event.label in counts) counts[event.label] += 1;
     } catch {
-      // Append-only logs may contain an incomplete final line after interruption.
     }
   }
   return counts;
@@ -207,7 +206,6 @@ async function refreshHealth() {
     healthCache = await bridge(["health"]);
     cacheExpiresAt = 0;
   } catch {
-    // Keep serving the last state while the capture worker holds a short SQLite lock.
   }
 }
 

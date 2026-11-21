@@ -417,7 +417,6 @@ function feedbackMap() {
       counts[event.label] += 1;
       feedback.set(event.observation_id, counts);
     } catch {
-      // Append-only feedback may end with an incomplete line.
     }
   }
   return feedback;

@@ -41,7 +41,6 @@ function readObsoleteIds() {
       const event = JSON.parse(line);
       if (event.label === "obsolete" && Number.isInteger(event.observation_id)) obsolete.add(event.observation_id);
     } catch {
-      // Ignore incomplete append-only log lines.
     }
   }
   return obsolete;

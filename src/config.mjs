@@ -9,10 +9,6 @@ function configuredPath(name, fallback) {
   return value || fallback;
 }
 
-/**
- * Runtime configuration is intentionally environment-based: personal paths,
- * databases and credentials never need to be committed to a repository.
- */
 export const config = Object.freeze({
   appName: "You're Always on My Mind",
   bridgePath: configuredPath(
