@@ -48,7 +48,7 @@ async function feedbackByObservation() {
         const summary = feedback.get(event.observation_id) ?? { useful: 0, incorrect: 0, obsolete: 0 };
         summary[event.label] += 1;
         feedback.set(event.observation_id, summary);
-      } catch { /* Ignore a malformed append-only log line. */ }
+      } catch {}
     }
     return feedback;
   } catch (error) {

@@ -91,7 +91,6 @@ function feedbackByObservation(path) {
       summary[event.label] += 1;
       records.set(event.observation_id, summary);
     } catch {
-      // Ignore an incomplete append-only line.
     }
   }
   return records;

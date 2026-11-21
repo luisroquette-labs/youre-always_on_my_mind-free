@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# One-command install for You're Always on My Mind.
-# Usage: curl -fsSL https://raw.githubusercontent.com/luisroquette-labs/youre-always_on_my_mind-free/main/scripts/install.sh | bash
-# Demo:  curl -fsSL .../scripts/install.sh | bash -s -- --demo
 set -euo pipefail
 
 REPO_URL="https://github.com/luisroquette-labs/youre-always_on_my_mind-free.git"

@@ -21,7 +21,6 @@ dist/
 !/graphify-out/graph.html
 !/graphify-out/GRAPH_REPORT.md
 
-# Private deployment overlays. Keep personal remote access outside public forks.
 launchd/
 scripts/remote-dashboard.sh
 scripts/remote-tunnel.sh

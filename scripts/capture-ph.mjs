@@ -1,9 +1,4 @@
 #!/usr/bin/env node
-/**
- * Capture English demo-mode stills and a short walkthrough.
- * Requires system Google Chrome and puppeteer-core on NODE_PATH.
- * Start the app first: npm run dashboard -- --demo
- */
 import { createRequire } from "node:module";
 import { mkdir, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";

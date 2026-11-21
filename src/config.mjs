@@ -14,12 +14,6 @@ function configuredPath(name, fallback) {
 const explicitBridge = process.env.YOURE_ALWAYS_ON_MY_MIND_BRIDGE_PATH?.trim() || "";
 const bridgePath = explicitBridge || (existsSync(legacyBridge) ? legacyBridge : null);
 
-/**
- * Runtime configuration is intentionally environment-based: personal paths,
- * databases and credentials never need to be committed to a repository.
- * When no external bridge is configured, the built-in reader opens the
- * claude-mem SQLite file directly and stays read-only.
- */
 export const config = Object.freeze({
   appName: "You're Always on My Mind",
   bridgePath,

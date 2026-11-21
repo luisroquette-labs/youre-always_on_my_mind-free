@@ -166,7 +166,6 @@ function jsonList(value) {
     if (Array.isArray(parsed)) return parsed.map((item) => typeof item === "string" ? item : JSON.stringify(item));
     if (parsed && typeof parsed === "object") return Object.entries(parsed).map(([key, item]) => `${key}: ${item}`);
   } catch {
-    // Historical rows may store plain text.
   }
   return [String(value)];
 }
@@ -183,7 +182,6 @@ function feedbackMap(feedbackPath) {
       counts[event.label] += 1;
       feedback.set(event.observation_id, counts);
     } catch {
-      // Ignore a partial last line.
     }
   }
   return feedback;

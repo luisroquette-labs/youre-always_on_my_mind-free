@@ -13,7 +13,9 @@
     "adoption": "node scripts/adoption.mjs",
     "backup": "node scripts/backup.mjs",
     "import:sessions": "node scripts/import-sessions.mjs",
-    "test": "node test/alerts.test.mjs && node test/embeddings.test.mjs && node test/semantic-relations.test.mjs && node test/timeline.test.mjs && node test/persistent-layout.test.mjs && node test/memory-quality.test.mjs && node test/project-memory.test.mjs && node test/cleanup.test.mjs && node test/import-sessions.test.mjs && node test/setup.test.mjs && node test/backup.test.mjs && node test/adoption.test.mjs && node test/i18n-catalog.test.mjs && node test/demo-mode.test.mjs && node test/claude-mem-bridge.test.mjs && node test/e2e.js"
+    "lint:comments": "node scripts/check-comments.mjs",
+    "preflight:ci": "npm run lint:comments && npm test && node scripts/validate-site.mjs",
+    "test": "node test/alerts.test.mjs && node test/embeddings.test.mjs && node test/semantic-relations.test.mjs && node test/timeline.test.mjs && node test/persistent-layout.test.mjs && node test/memory-quality.test.mjs && node test/project-memory.test.mjs && node test/cleanup.test.mjs && node test/import-sessions.test.mjs && node test/setup.test.mjs && node test/backup.test.mjs && node test/adoption.test.mjs && node test/i18n-catalog.test.mjs && node test/demo-mode.test.mjs && node test/claude-mem-bridge.test.mjs && node test/doctor-bridge.test.mjs && node test/e2e.js"
   },
   "bin": {
     "youre-always-on-my-mind": "./bin/youre-always-on-my-mind.mjs"
@@ -31,5 +33,9 @@
     "adm-zip": "0.6.0",
     "@hono/node-server": "2.0.11",
     "sharp": "0.35.3"
+  },
+  "devDependencies": {
+    "parse5": "^8.1.1",
+    "typescript": "~5.9.3"
   }
 }
