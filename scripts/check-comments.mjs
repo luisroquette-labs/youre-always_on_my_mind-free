@@ -44,6 +44,7 @@ assert.equal(jsComments('const Box = () => <div>{/* comment */}</div>;', 'source
 assert.equal(jsComments('const Box = () => <div> // text </div>;', 'source.jsx').length, 0);
 assert.equal(hashComments('uses: actions/checkout@hash # old').length, 1);
 assert.equal(hashComments('url: "https://site.test/#x"').length, 0);
+assert.equal([...'<script>const x = 1;</script >'.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script\s*>/gi)].length, 1);
 
 const paths = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' }).split('\0').filter(Boolean);
 const failures = [];
@@ -56,7 +57,7 @@ for (const path of paths) {
   const source = readFileSync(path, 'utf8');
   if (path === 'graphify-out/graph.html') {
     let count = [...source.matchAll(/<!--/g)].length;
-    for (const match of source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)) {
+    for (const match of source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script\s*>/gi)) {
       const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, ts.LanguageVariant.Standard, match[1]);
       for (let token = scanner.scan(); token !== ts.SyntaxKind.EndOfFileToken; token = scanner.scan()) {
         if (token === ts.SyntaxKind.SingleLineCommentTrivia || token === ts.SyntaxKind.MultiLineCommentTrivia) count++;
