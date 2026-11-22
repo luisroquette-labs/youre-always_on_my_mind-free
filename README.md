@@ -142,8 +142,13 @@ export YOURE_ALWAYS_ON_MY_MIND_BRIDGE_PATH="/absolute/path/to/your/bridge"
 export YOURE_ALWAYS_ON_MY_MIND_DATA_DIR="$HOME/.always-on-my-mind"
 ```
 
-Start with [examples/always-on-my-mind.env.example](examples/always-on-my-mind.env.example)
-and read the [adapter contract](docs/ADAPTERS.md).
+Set `YOURE_ALWAYS_ON_MY_MIND_DATABASE_PATH` only if the database is not at
+`$YOURE_ALWAYS_ON_MY_MIND_DATA_DIR/claude-mem.db`. Set
+`YOURE_ALWAYS_ON_MY_MIND_FEEDBACK_PATH` only if feedback is not at
+`$YOURE_ALWAYS_ON_MY_MIND_DATA_DIR/gateway-feedback.jsonl`. The dashboard uses
+port `4317` by default; `MEMORY_GATEWAY_DASHBOARD_PORT` changes it.
+
+Read the [adapter contract](docs/ADAPTERS.md).
 
 ## Connect your tools
 

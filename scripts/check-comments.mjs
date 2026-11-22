@@ -82,10 +82,6 @@ for (const path of paths) {
     : kind === 'hash' ? hashComments(source)
     : kind === 'css' ? [...source.matchAll(/\/\*/g)].map(match => source.slice(0, match.index).split('\n').length)
     : Array.from({ length: htmlCommentCount(source) }, (_, index) => index + 1);
-  if (path === 'examples/always-on-my-mind.env.example') {
-    if (positions.length > 5) failures.push(`${path}: template comment debt grew from 5 to ${positions.length}`);
-    continue;
-  }
   for (const position of positions) {
     const line = kind === 'js' ? source.slice(0, position).split('\n').length : position;
     failures.push(`${path}:${line}: comment is forbidden`);
@@ -94,4 +90,4 @@ for (const path of paths) {
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exitCode = 1;
-} else console.log('Comment ratchet passed: zero source comments; generated report <= 23; env template <= 5.');
+} else console.log('Comment ratchet passed: zero source comments; generated report <= 23.');
