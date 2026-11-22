@@ -12,4 +12,4 @@ Keep the 23 existing comment lines under a per-file lint ceiling until the Graph
 
 The source files have a zero-comment rule. Regenerating the report cannot increase the comment count; eliminating this remaining debt requires a change in the producer and then lowering the ceiling to zero.
 
-The five commented assignments in `examples/always-on-my-mind.env.example` remain as copyable examples. They have a separate ceiling of five; narrative comments were moved into the existing adapter documentation and this record.
+The five commented configuration examples were moved to the README. Only the generated report retains comment debt.
